@@ -19,7 +19,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,11 +72,10 @@ fun Cells() {
 
 @Composable
 fun WordleRow(state: RowState) {
-    Spacer(modifier = Modifier.size(48.dp))
+    Spacer(modifier = Modifier.size(16.dp))
     Row(
         Modifier
-            .fillMaxWidth()
-            .size(16.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {

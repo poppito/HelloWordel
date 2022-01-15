@@ -1,8 +1,9 @@
-package io.embry.hellowordel.presentation
+package io.embry.hellowordel.presentation.views
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,11 +24,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dagger.hilt.android.AndroidEntryPoint
 import io.embry.hellowordel.data.RowState
 import io.embry.hellowordel.data.TileState
+import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val viewModel: HelloWordelViewModel by viewModels<HelloWordelViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -104,7 +110,9 @@ fun Tile(state: TileState) {
         )
         TextField(
             value = state.text,
-            onValueChange = {}
+            onValueChange = {
+
+            }
         )
     }
     Spacer(modifier = Modifier.size(16.dp))

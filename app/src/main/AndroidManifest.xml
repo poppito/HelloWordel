@@ -4,13 +4,14 @@
 
     <application
         android:allowBackup="true"
+        android:name=".presentation.app.HelloWordelApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HelloWordel">
         <activity
-            android:name=".presentation.MainActivity"
+            android:name=".presentation.views.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.HelloWordel.NoActionBar">

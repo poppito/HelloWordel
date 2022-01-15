@@ -16,6 +16,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,7 +102,10 @@ fun Tile(state: TileState) {
             shape = RectangleShape,
             content = {}
         )
-        Text(text = state.text)
+        TextField(
+            value = state.text,
+            onValueChange = {}
+        )
     }
     Spacer(modifier = Modifier.size(16.dp))
 }

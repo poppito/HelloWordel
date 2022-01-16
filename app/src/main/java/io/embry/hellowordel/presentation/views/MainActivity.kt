@@ -24,12 +24,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.embry.hellowordel.data.RowState
 import io.embry.hellowordel.data.TileState
+import io.embry.hellowordel.data.WordelState
 import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
-
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -41,87 +47,82 @@ class MainActivity : ComponentActivity() {
             HelloWordelTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    HelloWordel()
+                    lifecycleScope.launch {
+                        repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            viewModel.setup()
+                            viewModel.wordel.collect {
+                                setContent {
+                                    HelloWordel(wordelState = it)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-fun HelloWordel() {
-    Cells()
-}
-
-@Composable
-fun Cells() {
-    val firstRowState = RowState(
-        tile1 = TileState(),
-        tile2 = TileState(),
-        tile3 = TileState(),
-        tile4 = TileState(),
-        tile5 = TileState(),
-        tile6 = TileState()
-    )
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        WordleRow(state = firstRowState)
-        WordleRow(state = firstRowState)
-        WordleRow(state = firstRowState)
-        WordleRow(state = firstRowState)
-        WordleRow(state = firstRowState)
-        WordleRow(state = firstRowState)
+    @Composable
+    fun HelloWordel(wordelState: WordelState) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            WordelRow(state = wordelState.row1)
+            WordelRow(state = wordelState.row2)
+            WordelRow(state = wordelState.row3)
+            WordelRow(state = wordelState.row4)
+            WordelRow(state = wordelState.row5)
+            WordelRow(state = wordelState.row6)
+        }
     }
-}
 
-@Composable
-fun WordleRow(state: RowState) {
-    Spacer(modifier = Modifier.size(16.dp))
-    Row(
-        Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
+    @Composable
+    fun WordelRow(state: RowState) {
         Spacer(modifier = Modifier.size(16.dp))
-        Tile(state = state.tile1)
-        Tile(state = state.tile2)
-        Tile(state = state.tile3)
-        Tile(state = state.tile4)
-        Tile(state = state.tile5)
-        Tile(state = state.tile6)
+        Row(
+            Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Spacer(modifier = Modifier.size(16.dp))
+            Tile(state = state.tile1)
+            Tile(state = state.tile2)
+            Tile(state = state.tile3)
+            Tile(state = state.tile4)
+            Tile(state = state.tile5)
+        }
     }
-}
 
-@Composable
-fun Tile(state: TileState) {
-    Box(
-        Modifier.size(48.dp),
-    ) {
-        Card(
-            border = BorderStroke(1.dp, Color.Black),
-            backgroundColor = state.color,
-            modifier = Modifier.size(48.dp),
-            shape = RectangleShape,
-            content = {}
-        )
-        TextField(
-            value = state.text,
-            onValueChange = {
+    @Composable
+    fun Tile(state: TileState) {
+        Box(
+            Modifier.size(48.dp),
+        ) {
+            Card(
+                border = BorderStroke(1.dp, Color.Black),
+                backgroundColor = state.color,
+                modifier = Modifier.size(48.dp),
+                shape = RectangleShape,
+                content = {}
+            )
+            TextField(
+                value = state.text,
+                onValueChange = {
 
-            }
-        )
+                }
+            )
+        }
+        Spacer(modifier = Modifier.size(16.dp))
     }
-    Spacer(modifier = Modifier.size(16.dp))
-}
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    HelloWordelTheme {
-        HelloWordel()
+    @Preview(showBackground = true)
+    @Composable
+    fun DefaultPreview() {
+        HelloWordelTheme {
+            //HelloWordel()
+        }
     }
 }

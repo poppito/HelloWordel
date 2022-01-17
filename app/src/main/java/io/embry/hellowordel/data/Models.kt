@@ -1,10 +1,10 @@
 package io.embry.hellowordel.data
 
 import androidx.compose.ui.graphics.Color
-import io.embry.hellowordel.ui.theme.Blank
+import io.embry.hellowordel.ui.theme.BlankBg
 
 data class TileState(
-    var color: Color = Blank,
+    var color: Color = BlankBg,
     var text: String = "",
     val tilePosition: TilePosition,
     var rowPosition: RowPosition = RowPosition.NONE
@@ -25,7 +25,17 @@ data class WordelState(
     val row4: RowState,
     val row5: RowState,
     val row6: RowState,
-)
+) {
+    //surely there is a more elegant way of emitting this
+    //perhaps a comparison of letters on each tile?
+    override fun equals(other: Any?): Boolean {
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+}
 
 enum class RowPosition(val position: Int?) {
     NONE(null),

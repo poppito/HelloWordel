@@ -35,7 +35,7 @@ import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -101,18 +101,17 @@ class MainActivity : ComponentActivity() {
         Box(
             Modifier.size(48.dp),
         ) {
-            Card(
-                border = BorderStroke(1.dp, Color.Black),
-                backgroundColor = state.color,
-                modifier = Modifier.size(48.dp),
-                shape = RectangleShape,
-                content = {}
-            )
             TextField(
                 value = state.text,
                 onValueChange = {
-
-                }
+                    viewModel.onLetterEntered(
+                        tilePosition = state.tilePosition,
+                        rowPosition = state.rowPosition,
+                        letter = it.uppercase(Locale.ROOT)
+                    )
+                },
+                singleLine = true,
+                maxLines = 1
             )
         }
         Spacer(modifier = Modifier.size(16.dp))

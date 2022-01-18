@@ -101,13 +101,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Tile(state: TileState) {
-        Box(
-            modifier = Modifier.size(48.dp)
-        ) {
-            Card(modifier = Modifier.fillMaxSize(),
+        Card(modifier = Modifier.size(48.dp),
             backgroundColor = state.color) {
-
-            }
             TextField(
                 value = state.text,
                 onValueChange = {

@@ -17,11 +17,14 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldColors
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -99,8 +102,12 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Tile(state: TileState) {
         Box(
-            Modifier.size(48.dp),
+            modifier = Modifier.size(48.dp)
         ) {
+            Card(modifier = Modifier.fillMaxSize(),
+            backgroundColor = state.color) {
+
+            }
             TextField(
                 value = state.text,
                 onValueChange = {
@@ -111,7 +118,8 @@ class MainActivity : ComponentActivity() {
                     )
                 },
                 singleLine = true,
-                maxLines = 1
+                maxLines = 1,
+                textStyle = TextStyle(color = state.textColor)
             )
         }
         Spacer(modifier = Modifier.size(16.dp))

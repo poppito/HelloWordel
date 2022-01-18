@@ -8,6 +8,10 @@ import io.embry.hellowordel.data.RowState
 import io.embry.hellowordel.data.TilePosition
 import io.embry.hellowordel.data.TileState
 import io.embry.hellowordel.data.WordelState
+import io.embry.hellowordel.ui.theme.Approximate
+import io.embry.hellowordel.ui.theme.Correct
+import io.embry.hellowordel.ui.theme.FilledText
+import io.embry.hellowordel.ui.theme.Incorrect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor() : ViewModel() {
     private var wordelState: WordelState = resetWordel()
+    private var word = "plough"
     private val _wordelState = MutableStateFlow(wordelState)
     val wordel: StateFlow<WordelState>
         get() = _wordelState
@@ -39,7 +44,23 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
             tileState.text = if (letter.isEmpty()) "" else letter.last().toString()
-            _wordelState.value = wordelState
+            val row = getRowState(rowPosition = rowPosition)
+            if (validateRow(rowState = row)) {
+                //check if word is correct
+                val correct = validateAnswer(rowState = row)
+                if (correct) {
+                    gameComplete(rowState = row)
+                } else {
+                    approximatePositions(row.tile1)
+                    approximatePositions(row.tile2)
+                    approximatePositions(row.tile3)
+                    approximatePositions(row.tile4)
+                    approximatePositions(row.tile5)
+                }
+                _wordelState.value = wordelState
+            } else {
+                _wordelState.value = wordelState
+            }
         }
     }
 
@@ -93,6 +114,37 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             RowPosition.NONE -> {
                 throw IllegalStateException("Row position must not be null")
             }
+        }
+    }
+
+    private fun validateAnswer(rowState: RowState): Boolean {
+        return rowState.tile1.text.equals(word.first().toString(), true) &&
+                rowState.tile2.text.equals(word[1].toString(), true) &&
+                rowState.tile3.text.equals(word[2].toString(), true) &&
+                rowState.tile4.text.equals(word[3].toString(), true) &&
+                rowState.tile5.text.equals(word[4].toString(), true)
+    }
+
+    private fun gameComplete(rowState: RowState) {
+        rowState.tile1.color = Correct
+        rowState.tile2.color = Correct
+        rowState.tile3.color = Correct
+        rowState.tile4.color = Correct
+        rowState.tile5.color = Correct
+    }
+
+    private fun approximatePositions(tileState: TileState): Pair<Int, Boolean> {
+        val match = tileState.text.equals(word.any().toString(), true)
+        return if (match) {
+            val position =
+                word.indexOfFirst { char -> char.toString().equals(tileState.text, true) }
+            tileState.color = Approximate
+            tileState.textColor = FilledText
+            Pair(position, true)
+        } else {
+            tileState.color = Incorrect
+            tileState.textColor = FilledText
+            Pair(-1, false)
         }
     }
 

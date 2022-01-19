@@ -40,13 +40,16 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             //check if all letters are entered, if not just emit the letter changed
             if (!areAllLettersFilled(rowState = row)) {
                 _wordelState.value = wordelState
+                //focus on next blank tile
                 return@launch
             }
             //all letters are filled, check if word is correct
             val correct = validateAnswer(rowState = row)
             if (correct) {
+                //success!
                 gameComplete(rowState = row)
             } else {
+                //detect if a letter is in the correct spot, or failing which, detect if a letter is contained within word
                 detectCorrectLetters(row.tile1)
                 detectCorrectLetters(row.tile2)
                 detectCorrectLetters(row.tile3)
@@ -132,22 +135,6 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
                 rowState.tile3.text.isNotBlank() &&
                 rowState.tile4.text.isNotBlank() &&
                 rowState.tile0.text.isNotBlank()
-
-//        if (rowState.tile1.text.isNotBlank()) {
-//            rowState.tile1.textColor = FilledText
-//        }
-//        if (rowState.tile2.text.isNotBlank()) {
-//            rowState.tile2.textColor = FilledText
-//        }
-//        if (rowState.tile3.text.isNotBlank()) {
-//            rowState.tile3.textColor = FilledText
-//        }
-//        if (rowState.tile4.text.isNotBlank()) {
-//            rowState.tile4.textColor = FilledText
-//        }
-//        if (rowState.tile5.text.isNotBlank()) {
-//            rowState.tile5.textColor = FilledText
-//        }
         return filled
     }
 

@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor() : ViewModel() {
     private var wordelState: WordelState = resetWordel()
-    private var word = "plough"
+    private var word = "PLOUGH"
     private val _wordelState = MutableStateFlow(wordelState)
     val wordel: StateFlow<WordelState>
         get() = _wordelState
@@ -31,36 +31,29 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         resetWordel()
     }
 
-    fun validateRow(rowState: RowState): Boolean {
-        return rowState.tile1.text.isNotBlank() &&
-                rowState.tile1.text.isNotBlank() &&
-                rowState.tile1.text.isNotBlank() &&
-                rowState.tile1.text.isNotBlank() &&
-                rowState.tile1.text.isNotBlank() &&
-                rowState.tile1.text.isNotBlank()
-    }
-
     fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
         viewModelScope.launch {
             val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
             tileState.text = if (letter.isEmpty()) "" else letter.last().toString()
+            //get current row from tile position.
             val row = getRowState(rowPosition = rowPosition)
-            if (validateRow(rowState = row)) {
-                //check if word is correct
-                val correct = validateAnswer(rowState = row)
-                if (correct) {
-                    gameComplete(rowState = row)
-                } else {
-                    approximatePositions(row.tile1)
-                    approximatePositions(row.tile2)
-                    approximatePositions(row.tile3)
-                    approximatePositions(row.tile4)
-                    approximatePositions(row.tile5)
-                }
+            //check if all letters are entered, if not just emit the letter changed
+            if (!areAllLettersFilled(rowState = row)) {
                 _wordelState.value = wordelState
-            } else {
-                _wordelState.value = wordelState
+                return@launch
             }
+            //all letters are filled, check if word is correct
+            val correct = validateAnswer(rowState = row)
+            if (correct) {
+                gameComplete(rowState = row)
+            } else {
+                detectCorrectLetters(row.tile1)
+                detectCorrectLetters(row.tile2)
+                detectCorrectLetters(row.tile3)
+                detectCorrectLetters(row.tile4)
+                detectCorrectLetters(row.tile0)
+            }
+            _wordelState.value = wordelState
         }
     }
 
@@ -72,14 +65,14 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             row3 = RowState(),
             row4 = RowState(),
             row5 = RowState(),
-            row6 = RowState()
+            row0 = RowState()
         )
         resetRow(rowState = wordelState.row1, rowPosition = RowPosition.FIRST)
         resetRow(rowState = wordelState.row2, rowPosition = RowPosition.SECOND)
         resetRow(rowState = wordelState.row3, rowPosition = RowPosition.THIRD)
         resetRow(rowState = wordelState.row4, rowPosition = RowPosition.FOURTH)
         resetRow(rowState = wordelState.row5, rowPosition = RowPosition.FIFTH)
-        resetRow(rowState = wordelState.row6, rowPosition = RowPosition.SIXTH)
+        resetRow(rowState = wordelState.row0, rowPosition = RowPosition.ZERO)
         return wordelState
     }
 
@@ -88,7 +81,7 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         rowState.tile2.rowPosition = rowPosition
         rowState.tile3.rowPosition = rowPosition
         rowState.tile4.rowPosition = rowPosition
-        rowState.tile5.rowPosition = rowPosition
+        rowState.tile0.rowPosition = rowPosition
     }
 
     private fun getRowState(rowPosition: RowPosition): RowState {
@@ -108,8 +101,8 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             RowPosition.FIFTH -> {
                 wordelState.row5
             }
-            RowPosition.SIXTH -> {
-                wordelState.row6
+            RowPosition.ZERO -> {
+                wordelState.row0
             }
             RowPosition.NONE -> {
                 throw IllegalStateException("Row position must not be null")
@@ -118,11 +111,11 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun validateAnswer(rowState: RowState): Boolean {
-        return rowState.tile1.text.equals(word.first().toString(), true) &&
-                rowState.tile2.text.equals(word[1].toString(), true) &&
-                rowState.tile3.text.equals(word[2].toString(), true) &&
-                rowState.tile4.text.equals(word[3].toString(), true) &&
-                rowState.tile5.text.equals(word[4].toString(), true)
+        return rowState.tile0.text.equals(word.first().toString(), true) &&
+                rowState.tile1.text.equals(word[1].toString(), true) &&
+                rowState.tile2.text.equals(word[2].toString(), true) &&
+                rowState.tile3.text.equals(word[3].toString(), true) &&
+                rowState.tile4.text.equals(word[4].toString(), true)
     }
 
     private fun gameComplete(rowState: RowState) {
@@ -130,29 +123,56 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         rowState.tile2.color = Correct
         rowState.tile3.color = Correct
         rowState.tile4.color = Correct
-        rowState.tile5.color = Correct
+        rowState.tile0.color = Correct
     }
 
-    private fun approximatePositions(tileState: TileState): Pair<Int, Boolean> {
-        val match = tileState.text.equals(word.any().toString(), true)
-        return if (match) {
-            val position =
-                word.indexOfFirst { char -> char.toString().equals(tileState.text, true) }
-            tileState.color = Approximate
+    private fun areAllLettersFilled(rowState: RowState): Boolean {
+        val filled = rowState.tile1.text.isNotBlank() &&
+                rowState.tile2.text.isNotBlank() &&
+                rowState.tile3.text.isNotBlank() &&
+                rowState.tile4.text.isNotBlank() &&
+                rowState.tile0.text.isNotBlank()
+
+//        if (rowState.tile1.text.isNotBlank()) {
+//            rowState.tile1.textColor = FilledText
+//        }
+//        if (rowState.tile2.text.isNotBlank()) {
+//            rowState.tile2.textColor = FilledText
+//        }
+//        if (rowState.tile3.text.isNotBlank()) {
+//            rowState.tile3.textColor = FilledText
+//        }
+//        if (rowState.tile4.text.isNotBlank()) {
+//            rowState.tile4.textColor = FilledText
+//        }
+//        if (rowState.tile5.text.isNotBlank()) {
+//            rowState.tile5.textColor = FilledText
+//        }
+        return filled
+    }
+
+    private fun detectCorrectLetters(tileState: TileState) {
+        val correct = tileState.text.equals(word[tileState.tilePosition.position].toString(), true)
+        if (correct) {
             tileState.textColor = FilledText
-            Pair(position, true)
+            tileState.color = Correct
         } else {
-            tileState.color = Incorrect
-            tileState.textColor = FilledText
-            Pair(-1, false)
+            val match = word.contains(tileState.text, true)
+            return if (match) {
+                tileState.color = Approximate
+                tileState.textColor = FilledText
+            } else {
+                tileState.color = Incorrect
+                tileState.textColor = FilledText
+            }
         }
     }
 
     private fun getTileState(rowPosition: RowPosition, tilePosition: TilePosition): TileState {
         val rowState = getRowState(rowPosition = rowPosition)
         return when (tilePosition) {
-            TilePosition.FIRST -> {
-                rowState.tile1
+            TilePosition.ZERO -> {
+                rowState.tile0
             }
             TilePosition.SECOND -> {
                 rowState.tile2
@@ -163,8 +183,8 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             TilePosition.FOURTH -> {
                 rowState.tile4
             }
-            TilePosition.FIFTH -> {
-                rowState.tile5
+            TilePosition.FIRST -> {
+                rowState.tile1
             }
         }
     }

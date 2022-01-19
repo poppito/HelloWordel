@@ -66,12 +66,12 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            WordelRow(state = wordelState.row0)
             WordelRow(state = wordelState.row1)
             WordelRow(state = wordelState.row2)
             WordelRow(state = wordelState.row3)
             WordelRow(state = wordelState.row4)
             WordelRow(state = wordelState.row5)
-            WordelRow(state = wordelState.row6)
         }
     }
 
@@ -85,11 +85,11 @@ class MainActivity : ComponentActivity() {
             horizontalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.size(16.dp))
+            Tile(state = state.tile0)
             Tile(state = state.tile1)
             Tile(state = state.tile2)
             Tile(state = state.tile3)
             Tile(state = state.tile4)
-            Tile(state = state.tile5)
         }
     }
 

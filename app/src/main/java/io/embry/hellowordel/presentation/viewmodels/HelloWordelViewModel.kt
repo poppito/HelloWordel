@@ -40,8 +40,8 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         data class RowInProgress(val wordelState: WordelState) : WordelUiState()
         data class RowComplete(val wordelState: WordelState) : WordelUiState()
         data class InvalidWordError(val wordelState: WordelState) : WordelUiState()
-        object Victory : WordelUiState()
-        object Loss : WordelUiState()
+        data class Victory(val wordelState: WordelState) : WordelUiState()
+        data class Loss(val wordelState: WordelState) : WordelUiState()
     }
 
     fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
@@ -71,7 +71,7 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         if (correct) {
             //success!
             gameComplete(rowState = row)
-            _wordelUiState.value = WordelUiState.Victory
+            _wordelUiState.value = WordelUiState.Victory(wordelState = wordelState)
         } else {
             //detect if a letter is in the correct spot, or failing which, detect if a letter is contained within word
             detectCorrectLetters(row.tile1)
@@ -81,7 +81,7 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             detectCorrectLetters(row.tile0)
             val newRowPosition = getNextRowPosition(rowPosition = wordelState.currentActiveRow)
             if (newRowPosition == null) {
-                _wordelUiState.value = WordelUiState.Loss
+                _wordelUiState.value = WordelUiState.Loss(wordelState = wordelState)
                 return
             }
             wordelState.currentActiveRow = newRowPosition

@@ -96,6 +96,20 @@ class MainActivity : ComponentActivity() {
                     showError = true
                 )
             }
+            is HelloWordelViewModel.WordelUiState.Loss -> {
+                WordelGame(
+                    wordelState = wordelUiState.wordelState,
+                    showEnter = false,
+                    showError = false
+                )
+            }
+            is HelloWordelViewModel.WordelUiState.Victory -> {
+                WordelGame(
+                    wordelState = wordelUiState.wordelState,
+                    showEnter = false,
+                    showError = false
+                )
+            }
         }
     }
 

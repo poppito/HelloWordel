@@ -22,16 +22,32 @@ import javax.inject.Inject
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor() : ViewModel() {
     private var wordelState: WordelState = resetWordel()
-    private var word = "PLOUGH"
-    private val _wordelState = MutableStateFlow(wordelState)
-    val wordel: StateFlow<WordelState>
-        get() = _wordelState
+    private var word = "SPEAR"
+
+    private var currentTilePosition: TilePosition? = null
+    private var currentRowPosition: RowPosition? = null
+
+    private val _wordelUiState =
+        MutableStateFlow<WordelUiState>(WordelUiState.RowInProgress(wordelState = wordelState))
+    val wordel: StateFlow<WordelUiState>
+        get() = _wordelUiState
 
     fun setup() {
         resetWordel()
     }
 
+    sealed class WordelUiState() {
+        data class RowInProgress(val wordelState: WordelState) : WordelUiState()
+        data class RowComplete(val wordelState: WordelState) : WordelUiState()
+        object RowIncompleteError : WordelUiState()
+        object InvalidWordError : WordelUiState()
+        object Victory : WordelUiState()
+        object Loss : WordelUiState()
+    }
+
     fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
+        currentRowPosition = rowPosition
+        currentTilePosition = tilePosition
         viewModelScope.launch {
             val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
             tileState.text = if (letter.isEmpty()) "" else letter.last().toString()
@@ -39,24 +55,42 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             val row = getRowState(rowPosition = rowPosition)
             //check if all letters are entered, if not just emit the letter changed
             if (!areAllLettersFilled(rowState = row)) {
-                _wordelState.value = wordelState
+                _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState)
                 //focus on next blank tile
                 return@launch
-            }
-            //all letters are filled, check if word is correct
-            val correct = validateAnswer(rowState = row)
-            if (correct) {
-                //success!
-                gameComplete(rowState = row)
             } else {
-                //detect if a letter is in the correct spot, or failing which, detect if a letter is contained within word
-                detectCorrectLetters(row.tile1)
-                detectCorrectLetters(row.tile2)
-                detectCorrectLetters(row.tile3)
-                detectCorrectLetters(row.tile4)
-                detectCorrectLetters(row.tile0)
+                _wordelUiState.value = WordelUiState.RowComplete(wordelState = wordelState)
+                return@launch
             }
-            _wordelState.value = wordelState
+        }
+    }
+
+    fun enterPressed() {
+        if (currentRowPosition == null) {
+            _wordelUiState.value = WordelUiState.RowIncompleteError
+            return
+        }
+        val row = getRowState(rowPosition = currentRowPosition!!)
+        //all letters are filled, check if word is correct
+        val correct = validateAnswer(rowState = row)
+        if (correct) {
+            //success!
+            gameComplete(rowState = row)
+            _wordelUiState.value = WordelUiState.Victory
+        } else {
+            //detect if a letter is in the correct spot, or failing which, detect if a letter is contained within word
+            detectCorrectLetters(row.tile1)
+            detectCorrectLetters(row.tile2)
+            detectCorrectLetters(row.tile3)
+            detectCorrectLetters(row.tile4)
+            detectCorrectLetters(row.tile0)
+            val newRowPosition = getNextRowPosition(rowPosition = wordelState.currentActiveRow)
+            if (newRowPosition == null) {
+                _wordelUiState.value = WordelUiState.Loss
+                return
+            }
+            wordelState.currentActiveRow = newRowPosition
+            _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState)
         }
     }
 
@@ -68,7 +102,8 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             row3 = RowState(),
             row4 = RowState(),
             row5 = RowState(),
-            row0 = RowState()
+            row0 = RowState(),
+            currentActiveRow = RowPosition.ZERO
         )
         resetRow(rowState = wordelState.row1, rowPosition = RowPosition.FIRST)
         resetRow(rowState = wordelState.row2, rowPosition = RowPosition.SECOND)
@@ -130,12 +165,11 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun areAllLettersFilled(rowState: RowState): Boolean {
-        val filled = rowState.tile1.text.isNotBlank() &&
+        return rowState.tile1.text.isNotBlank() &&
                 rowState.tile2.text.isNotBlank() &&
                 rowState.tile3.text.isNotBlank() &&
                 rowState.tile4.text.isNotBlank() &&
                 rowState.tile0.text.isNotBlank()
-        return filled
     }
 
     private fun detectCorrectLetters(tileState: TileState) {
@@ -172,6 +206,32 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
             }
             TilePosition.FIRST -> {
                 rowState.tile1
+            }
+        }
+    }
+
+    private fun getNextRowPosition(rowPosition: RowPosition): RowPosition? {
+        return when (rowPosition) {
+            RowPosition.FIRST -> {
+                RowPosition.SECOND
+            }
+            RowPosition.SECOND -> {
+                RowPosition.THIRD
+            }
+            RowPosition.THIRD -> {
+                RowPosition.FOURTH
+            }
+            RowPosition.FOURTH -> {
+                RowPosition.FIFTH
+            }
+            RowPosition.FIFTH -> {
+                null
+            }
+            RowPosition.ZERO -> {
+                RowPosition.FIRST
+            }
+            RowPosition.NONE -> {
+                RowPosition.ZERO
             }
         }
     }

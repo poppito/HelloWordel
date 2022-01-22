@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HelloWordel</string>
+
+    <string name="btn_enter">ENTER</string>
 </resources>

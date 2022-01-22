@@ -8,28 +8,39 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import io.embry.hellowordel.R
+import io.embry.hellowordel.data.RowPosition
 import io.embry.hellowordel.data.RowState
 import io.embry.hellowordel.data.TileState
-import io.embry.hellowordel.data.WordelState
 import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
+import io.embry.hellowordel.ui.theme.Teal200
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -49,7 +60,7 @@ class MainActivity : ComponentActivity() {
                             viewModel.setup()
                             viewModel.wordel.collect {
                                 setContent {
-                                    HelloWordel(wordelState = it)
+                                    HelloWordel(wordelUiState = it)
                                 }
                             }
                         }
@@ -60,23 +71,80 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun HelloWordel(wordelState: WordelState) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            WordelRow(state = wordelState.row0)
-            WordelRow(state = wordelState.row1)
-            WordelRow(state = wordelState.row2)
-            WordelRow(state = wordelState.row3)
-            WordelRow(state = wordelState.row4)
-            WordelRow(state = wordelState.row5)
+    fun HelloWordel(wordelUiState: HelloWordelViewModel.WordelUiState) {
+        when (wordelUiState) {
+            is HelloWordelViewModel.WordelUiState.RowInProgress -> {
+                val wordelState = wordelUiState.wordelState
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    WordelRow(
+                        state = wordelState.row0,
+                        enabled = wordelState.currentActiveRow == RowPosition.ZERO
+                    )
+                    WordelRow(
+                        state = wordelState.row1,
+                        enabled = wordelState.currentActiveRow == RowPosition.FIRST
+                    )
+                    WordelRow(
+                        state = wordelState.row2,
+                        enabled = wordelState.currentActiveRow == RowPosition.SECOND
+                    )
+                    WordelRow(
+                        state = wordelState.row3,
+                        enabled = wordelState.currentActiveRow == RowPosition.THIRD
+                    )
+                    WordelRow(
+                        state = wordelState.row4,
+                        enabled = wordelState.currentActiveRow == RowPosition.FOURTH
+                    )
+                    WordelRow(
+                        state = wordelState.row5,
+                        enabled = wordelState.currentActiveRow == RowPosition.FIFTH
+                    )
+                }
+            }
+            is HelloWordelViewModel.WordelUiState.RowComplete -> {
+                val wordelState = wordelUiState.wordelState
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    WordelRow(
+                        state = wordelState.row0,
+                        enabled = wordelState.currentActiveRow == RowPosition.ZERO
+                    )
+                    WordelRow(
+                        state = wordelState.row1,
+                        enabled = wordelState.currentActiveRow == RowPosition.FIRST
+                    )
+                    WordelRow(
+                        state = wordelState.row2,
+                        enabled = wordelState.currentActiveRow == RowPosition.SECOND
+                    )
+                    WordelRow(
+                        state = wordelState.row3,
+                        enabled = wordelState.currentActiveRow == RowPosition.THIRD
+                    )
+                    WordelRow(
+                        state = wordelState.row4,
+                        enabled = wordelState.currentActiveRow == RowPosition.FOURTH
+                    )
+                    WordelRow(
+                        state = wordelState.row5,
+                        enabled = wordelState.currentActiveRow == RowPosition.FIFTH
+                    )
+                    Enter()
+                }
+            }
         }
     }
 
     @Composable
-    fun WordelRow(state: RowState) {
+    fun WordelRow(state: RowState, enabled: Boolean) {
         Spacer(modifier = Modifier.size(16.dp))
         Row(
             Modifier
@@ -85,18 +153,20 @@ class MainActivity : ComponentActivity() {
             horizontalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.size(16.dp))
-            Tile(state = state.tile0)
-            Tile(state = state.tile1)
-            Tile(state = state.tile2)
-            Tile(state = state.tile3)
-            Tile(state = state.tile4)
+            Tile(state = state.tile0, enabled = enabled)
+            Tile(state = state.tile1, enabled = enabled)
+            Tile(state = state.tile2, enabled = enabled)
+            Tile(state = state.tile3, enabled = enabled)
+            Tile(state = state.tile4, enabled = enabled)
         }
     }
 
     @Composable
-    fun Tile(state: TileState) {
-        Card(modifier = Modifier.size(48.dp),
-            backgroundColor = state.color) {
+    fun Tile(state: TileState, enabled: Boolean) {
+        Card(
+            modifier = Modifier.size(48.dp),
+            backgroundColor = state.color
+        ) {
             TextField(
                 value = state.text,
                 onValueChange = {
@@ -108,17 +178,54 @@ class MainActivity : ComponentActivity() {
                 },
                 singleLine = true,
                 maxLines = 1,
-                textStyle = TextStyle(color = state.textColor)
+                textStyle = TextStyle(color = state.textColor),
+                readOnly = !enabled
             )
         }
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(4.dp))
+    }
+
+    @Composable
+    fun Enter() {
+        Spacer(modifier = Modifier.size(24.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.height(32.dp)
+        ) {
+            Button(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(32.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Teal200
+                ),
+                onClick = {
+                    viewModel.enterPressed()
+                }) {
+                ButtonLabel(label = stringResource(id = R.string.btn_enter))
+            }
+        }
+    }
+
+    @Composable
+    fun ButtonLabel(label: String) {
+        Row() {
+            Text(
+                text = label,
+                textAlign = TextAlign.Center,
+                fontSize = 12.sp
+            )
+            Spacer(
+                modifier = Modifier
+                    .width(4.dp)
+                    .fillMaxHeight()
+            )
+        }
     }
 
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
-        HelloWordelTheme {
-            //HelloWordel()
-        }
+        ButtonLabel(label = "Enter")
     }
 }

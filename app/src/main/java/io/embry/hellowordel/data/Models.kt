@@ -28,6 +28,7 @@ data class WordelState(
     val row3: RowState,
     val row4: RowState,
     val row5: RowState,
+    var currentActiveRow: RowPosition = RowPosition.NONE
 ) {
     //surely there is a more elegant way of emitting this
     //perhaps a comparison of letters on each tile?

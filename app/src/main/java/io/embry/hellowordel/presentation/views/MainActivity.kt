@@ -24,6 +24,7 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +39,7 @@ import io.embry.hellowordel.R
 import io.embry.hellowordel.data.RowPosition
 import io.embry.hellowordel.data.RowState
 import io.embry.hellowordel.data.TileState
+import io.embry.hellowordel.data.WordelState
 import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
 import io.embry.hellowordel.ui.theme.Teal200
@@ -74,71 +76,65 @@ class MainActivity : ComponentActivity() {
     fun HelloWordel(wordelUiState: HelloWordelViewModel.WordelUiState) {
         when (wordelUiState) {
             is HelloWordelViewModel.WordelUiState.RowInProgress -> {
-                val wordelState = wordelUiState.wordelState
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    WordelRow(
-                        state = wordelState.row0,
-                        enabled = wordelState.currentActiveRow == RowPosition.ZERO
-                    )
-                    WordelRow(
-                        state = wordelState.row1,
-                        enabled = wordelState.currentActiveRow == RowPosition.FIRST
-                    )
-                    WordelRow(
-                        state = wordelState.row2,
-                        enabled = wordelState.currentActiveRow == RowPosition.SECOND
-                    )
-                    WordelRow(
-                        state = wordelState.row3,
-                        enabled = wordelState.currentActiveRow == RowPosition.THIRD
-                    )
-                    WordelRow(
-                        state = wordelState.row4,
-                        enabled = wordelState.currentActiveRow == RowPosition.FOURTH
-                    )
-                    WordelRow(
-                        state = wordelState.row5,
-                        enabled = wordelState.currentActiveRow == RowPosition.FIFTH
-                    )
-                }
+                WordelGame(
+                    wordelState = wordelUiState.wordelState,
+                    showEnter = false,
+                    showError = false
+                )
             }
             is HelloWordelViewModel.WordelUiState.RowComplete -> {
-                val wordelState = wordelUiState.wordelState
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    WordelRow(
-                        state = wordelState.row0,
-                        enabled = wordelState.currentActiveRow == RowPosition.ZERO
-                    )
-                    WordelRow(
-                        state = wordelState.row1,
-                        enabled = wordelState.currentActiveRow == RowPosition.FIRST
-                    )
-                    WordelRow(
-                        state = wordelState.row2,
-                        enabled = wordelState.currentActiveRow == RowPosition.SECOND
-                    )
-                    WordelRow(
-                        state = wordelState.row3,
-                        enabled = wordelState.currentActiveRow == RowPosition.THIRD
-                    )
-                    WordelRow(
-                        state = wordelState.row4,
-                        enabled = wordelState.currentActiveRow == RowPosition.FOURTH
-                    )
-                    WordelRow(
-                        state = wordelState.row5,
-                        enabled = wordelState.currentActiveRow == RowPosition.FIFTH
-                    )
-                    Enter()
-                }
+                WordelGame(
+                    wordelState = wordelUiState.wordelState,
+                    showEnter = true,
+                    showError = false
+                )
+            }
+            is HelloWordelViewModel.WordelUiState.InvalidWordError -> {
+                WordelGame(
+                    wordelState = wordelUiState.wordelState,
+                    showEnter = false,
+                    showError = true
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun WordelGame(wordelState: WordelState, showEnter: Boolean, showError: Boolean) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            WordelRow(
+                state = wordelState.row0,
+                enabled = wordelState.currentActiveRow == RowPosition.ZERO
+            )
+            WordelRow(
+                state = wordelState.row1,
+                enabled = wordelState.currentActiveRow == RowPosition.FIRST
+            )
+            WordelRow(
+                state = wordelState.row2,
+                enabled = wordelState.currentActiveRow == RowPosition.SECOND
+            )
+            WordelRow(
+                state = wordelState.row3,
+                enabled = wordelState.currentActiveRow == RowPosition.THIRD
+            )
+            WordelRow(
+                state = wordelState.row4,
+                enabled = wordelState.currentActiveRow == RowPosition.FOURTH
+            )
+            WordelRow(
+                state = wordelState.row5,
+                enabled = wordelState.currentActiveRow == RowPosition.FIFTH
+            )
+            if (showEnter) {
+                Enter()
+            }
+            if (showError) {
+                InvalidWordError()
             }
         }
     }
@@ -183,6 +179,18 @@ class MainActivity : ComponentActivity() {
             )
         }
         Spacer(modifier = Modifier.size(4.dp))
+    }
+
+    @Composable
+    fun InvalidWordError() {
+        Text(
+            text = stringResource(id = R.string.txt_invalid_word),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            color = Color.Red
+        )
     }
 
     @Composable

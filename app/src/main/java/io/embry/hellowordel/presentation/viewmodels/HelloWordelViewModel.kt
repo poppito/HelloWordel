@@ -39,8 +39,7 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
     sealed class WordelUiState() {
         data class RowInProgress(val wordelState: WordelState) : WordelUiState()
         data class RowComplete(val wordelState: WordelState) : WordelUiState()
-        object RowIncompleteError : WordelUiState()
-        object InvalidWordError : WordelUiState()
+        data class InvalidWordError(val wordelState: WordelState) : WordelUiState()
         object Victory : WordelUiState()
         object Loss : WordelUiState()
     }
@@ -66,10 +65,6 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
     }
 
     fun enterPressed() {
-        if (currentRowPosition == null) {
-            _wordelUiState.value = WordelUiState.RowIncompleteError
-            return
-        }
         val row = getRowState(rowPosition = currentRowPosition!!)
         //all letters are filled, check if word is correct
         val correct = validateAnswer(rowState = row)

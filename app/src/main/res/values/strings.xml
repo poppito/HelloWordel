@@ -2,4 +2,5 @@
     <string name="app_name">HelloWordel</string>
 
     <string name="btn_enter">ENTER</string>
+    <string name="txt_invalid_word">This word seems invalid!</string>
 </resources>

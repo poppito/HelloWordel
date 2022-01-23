@@ -34,6 +34,8 @@ class WordsRepoImpl @Inject constructor(private val context: Context) : WordsRep
         return Pair(random, word)
     }
 
+    override fun containsWord(word: String) = words.containsValue(word)
+
     private fun generateWord(input: String): Pair<Int, String> {
         val types = input.split(",").toTypedArray()
         return Pair(types[0].toInt(), types[1])

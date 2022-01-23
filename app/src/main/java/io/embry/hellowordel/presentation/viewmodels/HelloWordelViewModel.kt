@@ -1,7 +1,6 @@
 package io.embry.hellowordel.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.embry.hellowordel.data.RowPosition
 import io.embry.hellowordel.data.RowState
@@ -15,8 +14,8 @@ import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.Incorrect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -49,20 +48,15 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
         currentRowPosition = rowPosition
         currentTilePosition = tilePosition
-        viewModelScope.launch {
-            val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
-            tileState.text = if (letter.isEmpty()) "" else letter.last().toString()
-            //get current row from tile position.
-            val row = getRowState(rowPosition = rowPosition)
-            //check if all letters are entered, if not just emit the letter changed
-            if (!areAllLettersFilled(rowState = row)) {
-                _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState)
-                //focus on next blank tile
-                return@launch
-            } else {
-                _wordelUiState.value = WordelUiState.RowComplete(wordelState = wordelState)
-                return@launch
-            }
+        val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
+        tileState.text = if (letter.isEmpty()) "" else letter.last().toString()
+        //get current row from tile position.
+        val row = getRowState(rowPosition = rowPosition)
+        //check if all letters are entered, if not just emit the letter changed
+        if (!areAllLettersFilled(rowState = row)) {
+            _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState)
+        } else {
+            _wordelUiState.value = WordelUiState.RowComplete(wordelState = wordelState)
         }
     }
 
@@ -70,6 +64,11 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         val row = getRowState(rowPosition = currentRowPosition!!)
         //all letters are filled, check if word is correct
         val correct = validateAnswer(rowState = row)
+
+        if (!wordsRepo.containsWord(getWord(rowState = row))) {
+            _wordelUiState.value = WordelUiState.InvalidWordError(wordelState = wordelState)
+            return
+        }
         if (correct) {
             //success!
             gameComplete(rowState = row)
@@ -232,4 +231,11 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             }
         }
     }
+
+    private fun getWord(rowState: RowState): String {
+        return (rowState.tile0.text + rowState.tile1.text + rowState.tile2.text + rowState.tile3.text + rowState.tile4.text).lowercase(
+            Locale.ROOT
+        )
+    }
 }
+//endregion

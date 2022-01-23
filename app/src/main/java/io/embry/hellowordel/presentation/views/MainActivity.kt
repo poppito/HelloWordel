@@ -197,6 +197,9 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun InvalidWordError() {
+        Spacer(modifier = Modifier
+            .height(48.dp)
+            .fillMaxWidth())
         Text(
             text = stringResource(id = R.string.txt_invalid_word),
             textAlign = TextAlign.Center,

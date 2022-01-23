@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo) : ViewModel() {
+    private var matchedLetters = mutableListOf<String>()
     private var wordelState: WordelState = resetWordel()
-
     private var currentTilePosition: TilePosition? = null
     private var currentRowPosition: RowPosition? = null
     private lateinit var word: String
@@ -34,7 +34,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
 
     fun setup() {
         resetWordel()
-        word = wordsRepo.getNextWord().second
+        word = "faxed"//wordsRepo.getNextWord().second
     }
 
     sealed class WordelUiState {
@@ -75,12 +75,16 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             _wordelUiState.value = WordelUiState.Victory(wordelState = wordelState)
         } else {
             //detect if a letter is in the correct spot, or failing which, detect if a letter is contained within word
+            word.forEach {
+                matchedLetters.add(it.toString())
+            }
+            detectCorrectLetters(row.tile0)
             detectCorrectLetters(row.tile1)
             detectCorrectLetters(row.tile2)
             detectCorrectLetters(row.tile3)
             detectCorrectLetters(row.tile4)
-            detectCorrectLetters(row.tile0)
             val newRowPosition = getNextRowPosition(rowPosition = wordelState.currentActiveRow)
+            matchedLetters.clear()
             if (newRowPosition == null) {
                 _wordelUiState.value = WordelUiState.Loss(wordelState = wordelState)
                 return
@@ -92,6 +96,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
 
     //region private
     private fun resetWordel(): WordelState {
+        matchedLetters.clear()
         wordelState = WordelState(
             row1 = RowState(),
             row2 = RowState(),
@@ -153,11 +158,16 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     }
 
     private fun gameComplete(rowState: RowState) {
-        rowState.tile1.color = Correct
-        rowState.tile2.color = Correct
-        rowState.tile3.color = Correct
-        rowState.tile4.color = Correct
         rowState.tile0.color = Correct
+        rowState.tile0.textColor = FilledText
+        rowState.tile1.color = Correct
+        rowState.tile1.textColor = FilledText
+        rowState.tile2.color = Correct
+        rowState.tile2.textColor = FilledText
+        rowState.tile3.color = Correct
+        rowState.tile3.textColor = FilledText
+        rowState.tile4.color = Correct
+        rowState.tile4.textColor = FilledText
     }
 
     private fun areAllLettersFilled(rowState: RowState): Boolean {
@@ -171,13 +181,22 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private fun detectCorrectLetters(tileState: TileState) {
         val correct = tileState.text.equals(word[tileState.tilePosition.position].toString(), true)
         if (correct) {
+            val letter = matchedLetters.first { it.equals(tileState.text, true) }
+            matchedLetters.remove(letter)
             tileState.textColor = FilledText
             tileState.color = Correct
         } else {
             val match = word.contains(tileState.text, true)
             return if (match) {
-                tileState.color = Approximate
-                tileState.textColor = FilledText
+                val letter = matchedLetters.firstOrNull { it.equals(tileState.text, true) }
+                if (letter == null) {
+                    tileState.color = Incorrect
+                    tileState.textColor = FilledText
+                } else {
+                    matchedLetters.remove(letter)
+                    tileState.color = Approximate
+                    tileState.textColor = FilledText
+                }
             } else {
                 tileState.color = Incorrect
                 tileState.textColor = FilledText

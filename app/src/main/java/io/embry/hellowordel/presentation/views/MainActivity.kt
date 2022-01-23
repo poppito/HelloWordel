@@ -30,7 +30,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -43,6 +42,8 @@ import io.embry.hellowordel.data.WordelState
 import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
 import io.embry.hellowordel.ui.theme.Teal200
+import io.embry.hellowordel.ui.theme.headerFont
+import io.embry.hellowordel.ui.theme.typography
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -188,7 +189,7 @@ class MainActivity : ComponentActivity() {
                 },
                 singleLine = true,
                 maxLines = 1,
-                textStyle = TextStyle(color = state.textColor),
+                textStyle = TextStyle(color = state.textColor, fontFamily = headerFont),
                 readOnly = !enabled
             )
         }
@@ -197,16 +198,19 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun InvalidWordError() {
-        Spacer(modifier = Modifier
-            .height(48.dp)
-            .fillMaxWidth())
+        Spacer(
+            modifier = Modifier
+                .height(48.dp)
+                .fillMaxWidth()
+        )
         Text(
             text = stringResource(id = R.string.txt_invalid_word),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            color = Color.Red
+            color = Color.Red,
+            style = typography.body1
         )
     }
 
@@ -238,7 +242,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = label,
                 textAlign = TextAlign.Center,
-                fontSize = 12.sp
+                style = typography.caption
             )
             Spacer(
                 modifier = Modifier

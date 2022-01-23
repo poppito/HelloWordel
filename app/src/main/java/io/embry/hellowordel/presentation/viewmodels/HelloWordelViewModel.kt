@@ -13,6 +13,7 @@ import io.embry.hellowordel.ui.theme.Approximate
 import io.embry.hellowordel.ui.theme.Correct
 import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.Incorrect
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,10 +24,10 @@ import javax.inject.Inject
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo) : ViewModel() {
     private var wordelState: WordelState = resetWordel()
-    private var word = "SPEAR"
 
     private var currentTilePosition: TilePosition? = null
     private var currentRowPosition: RowPosition? = null
+    private lateinit var word: String
 
     private val _wordelUiState =
         MutableStateFlow<WordelUiState>(WordelUiState.RowInProgress(wordelState = wordelState))
@@ -34,13 +35,11 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         get() = _wordelUiState
 
     fun setup() {
-        viewModelScope.launch {
-            wordsRepo.createContent()
-        }
         resetWordel()
+        word = wordsRepo.getNextWord().second
     }
 
-    sealed class WordelUiState() {
+    sealed class WordelUiState {
         data class RowInProgress(val wordelState: WordelState) : WordelUiState()
         data class RowComplete(val wordelState: WordelState) : WordelUiState()
         data class InvalidWordError(val wordelState: WordelState) : WordelUiState()

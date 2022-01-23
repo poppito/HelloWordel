@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     lifecycleScope.launch {
-                        repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        repeatOnLifecycle(Lifecycle.State.CREATED) {
                             viewModel.setup()
                             viewModel.wordel.collect {
                                 setContent {

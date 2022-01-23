@@ -34,7 +34,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
 
     fun setup() {
         resetWordel()
-        word = "faxed"//wordsRepo.getNextWord().second
+        word = wordsRepo.getNextWord().second
     }
 
     sealed class WordelUiState {

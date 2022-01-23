@@ -8,6 +8,7 @@ import io.embry.hellowordel.data.RowState
 import io.embry.hellowordel.data.TilePosition
 import io.embry.hellowordel.data.TileState
 import io.embry.hellowordel.data.WordelState
+import io.embry.hellowordel.domain.WordsRepo
 import io.embry.hellowordel.ui.theme.Approximate
 import io.embry.hellowordel.ui.theme.Correct
 import io.embry.hellowordel.ui.theme.FilledText
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class HelloWordelViewModel @Inject constructor() : ViewModel() {
+class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo) : ViewModel() {
     private var wordelState: WordelState = resetWordel()
     private var word = "SPEAR"
 
@@ -33,6 +34,9 @@ class HelloWordelViewModel @Inject constructor() : ViewModel() {
         get() = _wordelUiState
 
     fun setup() {
+        viewModelScope.launch {
+            wordsRepo.createContent()
+        }
         resetWordel()
     }
 

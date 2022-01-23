@@ -13,7 +13,6 @@ import io.embry.hellowordel.ui.theme.Approximate
 import io.embry.hellowordel.ui.theme.Correct
 import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.Incorrect
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

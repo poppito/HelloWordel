@@ -14,9 +14,9 @@ import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.Incorrect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.lang.IllegalStateException
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.IllegalStateException
 
 
 @HiltViewModel
@@ -26,6 +26,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var currentTilePosition: TilePosition? = null
     private var currentRowPosition: RowPosition? = null
     private lateinit var word: String
+
+    private var previousUiState: WordelUiState? = null
 
     private val _wordelUiState =
         MutableStateFlow<WordelUiState>(WordelUiState.RowInProgress(wordelState = wordelState))
@@ -37,12 +39,13 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         word = wordsRepo.getNextWord().second
     }
 
-    sealed class WordelUiState {
+    sealed class WordelUiState() {
         data class RowInProgress(val wordelState: WordelState) : WordelUiState()
         data class RowComplete(val wordelState: WordelState) : WordelUiState()
         data class InvalidWordError(val wordelState: WordelState) : WordelUiState()
         data class Victory(val wordelState: WordelState) : WordelUiState()
         data class Loss(val wordelState: WordelState) : WordelUiState()
+        data class ShowHelp(val wordelState: WordelState) : WordelUiState()
     }
 
     fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
@@ -58,6 +61,15 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         } else {
             _wordelUiState.value = WordelUiState.RowComplete(wordelState = wordelState)
         }
+    }
+
+    fun onHelpPressed() {
+        previousUiState = _wordelUiState.value
+        _wordelUiState.value = WordelUiState.ShowHelp(wordelState = wordelState)
+    }
+
+    fun onHelpDismissed() {
+        _wordelUiState.value = previousUiState ?: throw IllegalStateException("Previous UI State cannot be null!")
     }
 
     fun enterPressed() {

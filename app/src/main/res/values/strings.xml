@@ -3,4 +3,12 @@
 
     <string name="btn_enter">ENTER</string>
     <string name="txt_invalid_word">This word seems invalid!</string>
+    <string name="btn_help">?</string>
+    <string name="btn_ok">OK</string>
+    <string name="txt_help_dialog_title">Hello Wordel!</string>
+    <string name="txt_help_dialog_body1">Find a hidden 5 letter word, with 6 guesses. After each guess, the colour of the tiles will indicate whether a letter was in the correct spot, or if the word contained any letters that were guessed.</string>
+    <string name="txt_help_dialog_body2"><b>Example</b></string>
+    <string name="txt_help_dialog_body3">The letter C is in the correct spot</string>
+    <string name="txt_help_dialog_body4">The word contains the letters U and Y but here they are in the wrong spot.</string>
+    <string name="txt_help_dialog_body5">The word does not contain the letter F.</string>
 </resources>

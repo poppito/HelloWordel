@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,9 +13,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -37,10 +41,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.embry.hellowordel.R
 import io.embry.hellowordel.data.RowPosition
 import io.embry.hellowordel.data.RowState
+import io.embry.hellowordel.data.TilePosition
 import io.embry.hellowordel.data.TileState
 import io.embry.hellowordel.data.WordelState
 import io.embry.hellowordel.presentation.viewmodels.HelloWordelViewModel
+import io.embry.hellowordel.ui.theme.Approximate
+import io.embry.hellowordel.ui.theme.Correct
+import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
+import io.embry.hellowordel.ui.theme.Incorrect
 import io.embry.hellowordel.ui.theme.Teal200
 import io.embry.hellowordel.ui.theme.headerFont
 import io.embry.hellowordel.ui.theme.typography
@@ -75,6 +84,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun HelloWordel(wordelUiState: HelloWordelViewModel.WordelUiState) {
+        Help(showHelp = { viewModel.onHelpPressed() })
         when (wordelUiState) {
             is HelloWordelViewModel.WordelUiState.RowInProgress -> {
                 WordelGame(
@@ -110,6 +120,14 @@ class MainActivity : ComponentActivity() {
                     showEnter = false,
                     showError = false
                 )
+            }
+            is HelloWordelViewModel.WordelUiState.ShowHelp -> {
+                WordelGame(
+                    wordelState = wordelUiState.wordelState,
+                    showEnter = false,
+                    showError = false
+                )
+                HelpAlert()
             }
         }
     }
@@ -163,7 +181,6 @@ class MainActivity : ComponentActivity() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.size(16.dp))
             Tile(state = state.tile0, enabled = enabled)
             Tile(state = state.tile1, enabled = enabled)
             Tile(state = state.tile2, enabled = enabled)
@@ -238,7 +255,10 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ButtonLabel(label: String) {
-        Row() {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
             Text(
                 text = label,
                 textAlign = TextAlign.Center,
@@ -248,6 +268,216 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .width(4.dp)
                     .fillMaxHeight()
+            )
+        }
+    }
+
+    @Composable
+    fun Help(showHelp: () -> Unit) {
+        Spacer(modifier = Modifier.size(96.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(id = R.string.btn_help),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(48.dp)
+                    .clickable {
+                        showHelp.invoke()
+                    },
+                style = typography.h1,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = stringResource(id = R.string.btn_help),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(48.dp)
+                    .clickable { /* TODO */ },
+                style = typography.h1,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+
+    @Composable
+    fun HelpAlert() {
+        AlertDialog(
+            onDismissRequest = { viewModel.onHelpDismissed() },
+            buttons = {
+                OkButton {
+                    viewModel.onHelpDismissed()
+                }
+            },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.txt_help_dialog_title),
+                    style = typography.h1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = { HelpInfo() }
+        )
+    }
+
+    @Composable
+    fun OkButton(onClick: () -> Unit) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = { onClick.invoke() },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Teal200)
+            ) {
+                ButtonLabel(label = stringResource(id = R.string.btn_ok))
+            }
+        }
+        Spacer(modifier = Modifier.size(48.dp))
+    }
+
+    @Composable
+    fun HelpInfo() {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(id = R.string.txt_help_dialog_body1),
+                style = typography.body1,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = stringResource(id = R.string.txt_help_dialog_body2),
+                style = typography.body1,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+            WordelRow(
+                state = RowState(
+                    tile0 = TileState(
+                        color = Correct,
+                        textColor = FilledText,
+                        text = "C",
+                        tilePosition = TilePosition.ZERO
+                    ),
+                    tile1 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "O",
+                        tilePosition = TilePosition.FIRST
+                    ),
+                    tile2 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "N",
+                        tilePosition = TilePosition.SECOND
+                    ),
+                    tile3 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "E",
+                        tilePosition = TilePosition.THIRD
+                    ),
+                    tile4 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "S",
+                        tilePosition = TilePosition.FOURTH
+                    )
+                ), enabled = false
+            )
+            Text(
+                text = stringResource(id = R.string.txt_help_dialog_body3),
+                style = typography.body2,
+                textAlign = TextAlign.Center
+            )
+            WordelRow(
+                state = RowState(
+                    tile0 = TileState(
+                        color = Correct,
+                        textColor = FilledText,
+                        text = "C",
+                        tilePosition = TilePosition.ZERO
+                    ),
+                    tile1 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "L",
+                        tilePosition = TilePosition.FIRST
+                    ),
+                    tile2 = TileState(
+                        color = Approximate,
+                        textColor = FilledText,
+                        text = "U",
+                        tilePosition = TilePosition.SECOND
+                    ),
+                    tile3 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "E",
+                        tilePosition = TilePosition.THIRD
+                    ),
+                    tile4 = TileState(
+                        color = Approximate,
+                        textColor = FilledText,
+                        text = "Y",
+                        tilePosition = TilePosition.FOURTH
+                    )
+                ), enabled = false
+            )
+            Text(
+                text = stringResource(id = R.string.txt_help_dialog_body4),
+                style = typography.body2,
+                textAlign = TextAlign.Center
+            )
+            WordelRow(
+                state = RowState(
+                    tile0 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "Z",
+                        tilePosition = TilePosition.ZERO
+                    ),
+                    tile1 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "O",
+                        tilePosition = TilePosition.FIRST
+                    ),
+                    tile2 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "N",
+                        tilePosition = TilePosition.SECOND
+                    ),
+                    tile3 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "E",
+                        tilePosition = TilePosition.THIRD
+                    ),
+                    tile4 = TileState(
+                        color = Incorrect,
+                        textColor = FilledText,
+                        text = "S",
+                        tilePosition = TilePosition.FOURTH
+                    )
+                ), enabled = false
+            )
+            Text(
+                text = stringResource(id = R.string.txt_help_dialog_body5),
+                style = typography.body2,
+                textAlign = TextAlign.Center
             )
         }
     }

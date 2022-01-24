@@ -39,7 +39,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         word = wordsRepo.getNextWord().second
     }
 
-    sealed class WordelUiState() {
+    sealed class WordelUiState {
         data class RowInProgress(val wordelState: WordelState) : WordelUiState()
         data class RowComplete(val wordelState: WordelState) : WordelUiState()
         data class InvalidWordError(val wordelState: WordelState) : WordelUiState()
@@ -64,12 +64,14 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     }
 
     fun onHelpPressed() {
+        if (_wordelUiState.value is WordelUiState.ShowHelp) return
         previousUiState = _wordelUiState.value
         _wordelUiState.value = WordelUiState.ShowHelp(wordelState = wordelState)
     }
 
     fun onHelpDismissed() {
-        _wordelUiState.value = previousUiState ?: throw IllegalStateException("Previous UI State cannot be null!")
+        _wordelUiState.value =
+            previousUiState ?: throw IllegalStateException("Previous UI State cannot be null!")
     }
 
     fun enterPressed() {

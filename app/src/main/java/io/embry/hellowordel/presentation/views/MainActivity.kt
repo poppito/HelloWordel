@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,7 +58,7 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel: HelloWordelViewModel by viewModels<HelloWordelViewModel>()
+    private val viewModel: HelloWordelViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -224,7 +225,7 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            color = Color.Red,
+            color = if (isSystemInDarkTheme()) Color.White else Color.Black,
             style = typography.body1
         )
     }
@@ -289,7 +290,8 @@ class MainActivity : ComponentActivity() {
                         showHelp.invoke()
                     },
                 style = typography.h1,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = if (isSystemInDarkTheme()) Color.White else Color.Black
             )
             Text(
                 text = stringResource(id = R.string.btn_help),
@@ -305,23 +307,25 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun HelpAlert() {
-        AlertDialog(
-            onDismissRequest = { viewModel.onHelpDismissed() },
-            buttons = {
-                OkButton {
-                    viewModel.onHelpDismissed()
-                }
-            },
-            title = {
-                Text(
-                    text = stringResource(id = R.string.txt_help_dialog_title),
-                    style = typography.h1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            text = { HelpInfo() }
-        )
+        HelloWordelTheme() {
+            AlertDialog(
+                onDismissRequest = { viewModel.onHelpDismissed() },
+                buttons = {
+                    OkButton {
+                        viewModel.onHelpDismissed()
+                    }
+                },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.txt_help_dialog_title),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                text = { HelpInfo() }
+            )
+        }
     }
 
     @Composable

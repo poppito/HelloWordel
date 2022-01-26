@@ -1,11 +1,11 @@
 package io.embry.hellowordel.data
 
 import androidx.compose.ui.graphics.Color
-import io.embry.hellowordel.ui.theme.BlankBg
 import io.embry.hellowordel.ui.theme.BlankText
+import io.embry.hellowordel.ui.theme.Teal200
 
 data class TileState(
-    var color: Color = BlankBg,
+    var color: Color = Teal200,
     var textColor: Color = BlankText,
     var text: String = "",
     val tilePosition: TilePosition,

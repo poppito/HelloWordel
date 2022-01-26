@@ -4,6 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateValue
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -34,9 +44,11 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -220,25 +232,31 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Tile(state: TileState, enabled: Boolean) {
-        Card(
-            modifier = Modifier.size(48.dp),
-            backgroundColor = state.color
-        ) {
-            TextField(
-                value = state.text,
-                onValueChange = {
-                    viewModel.onLetterEntered(
-                        tilePosition = state.tilePosition,
-                        rowPosition = state.rowPosition,
-                        letter = it.uppercase(Locale.ROOT)
-                    )
-                },
-                singleLine = true,
-                maxLines = 1,
-                textStyle = TextStyle(color = state.textColor, fontFamily = headerFont),
-                readOnly = !enabled
+        val scale = animateFloatAsState(
+            targetValue = 1f,
+            animationSpec = tween()
+        )
+        TextField(
+            value = state.text,
+            onValueChange = {
+                viewModel.onLetterEntered(
+                    tilePosition = state.tilePosition,
+                    rowPosition = state.rowPosition,
+                    letter = it.uppercase(Locale.ROOT)
+                )
+            },
+            singleLine = true,
+            maxLines = 1,
+            textStyle = TextStyle(color = state.textColor, fontFamily = headerFont),
+            readOnly = !enabled,
+            modifier = Modifier
+                .size(48.dp)
+                .scale(scaleX = scale.value, scaleY = scale.value),
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = state.textColor,
+                backgroundColor = state.color
             )
-        }
+        )
         Spacer(modifier = Modifier.size(4.dp))
     }
 
@@ -322,9 +340,11 @@ class MainActivity : ComponentActivity() {
                     color = if (isSystemInDarkTheme()) Color.White else Color.Black
                 )
             }
-            Row(modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = stringResource(id = R.string.btn_help),
                     modifier = Modifier

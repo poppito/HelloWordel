@@ -1,5 +1,7 @@
 package io.embry.hellowordel.presentation.viewmodels
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.embry.hellowordel.data.RowPosition
@@ -22,6 +24,7 @@ import kotlin.IllegalStateException
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo) : ViewModel() {
     private var matchedLetters = mutableListOf<String>()
+    private var guessedLetters = mutableListOf<GuessedLetter>()
     private var wordelState: WordelState = resetWordel()
     private var currentTilePosition: TilePosition? = null
     private var currentRowPosition: RowPosition? = null
@@ -30,7 +33,12 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var previousUiState: WordelUiState? = null
 
     private val _wordelUiState =
-        MutableStateFlow<WordelUiState>(WordelUiState.RowInProgress(wordelState = wordelState))
+        MutableStateFlow<WordelUiState>(
+            WordelUiState.RowInProgress(
+                wordelState = wordelState,
+                emptyList()
+            )
+        )
     val wordel: StateFlow<WordelUiState>
         get() = _wordelUiState
 
@@ -39,10 +47,35 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         word = wordsRepo.getNextWord().second
     }
 
+    data class GuessedLetter(val letter: String, val color: Color) {
+        override fun equals(other: Any?): Boolean {
+            return if (other !is GuessedLetter) false
+            else other.letter.equals(letter, true)
+        }
+
+        override fun hashCode(): Int {
+            return super.hashCode()
+        }
+    }
+
     sealed class WordelUiState {
-        data class RowInProgress(val wordelState: WordelState) : WordelUiState()
-        data class RowComplete(val wordelState: WordelState) : WordelUiState()
-        data class InvalidWordError(val wordelState: WordelState) : WordelUiState()
+        data class RowInProgress(
+            val wordelState: WordelState,
+            val guessedLetters: List<GuessedLetter>?
+        ) :
+            WordelUiState()
+
+        data class RowComplete(
+            val wordelState: WordelState,
+            val guessedLetters: List<GuessedLetter>?
+        ) :
+            WordelUiState()
+
+        data class InvalidWordError(
+            val wordelState: WordelState,
+            val guessedLetters: List<GuessedLetter>?
+        ) : WordelUiState()
+
         data class Victory(val wordelState: WordelState) : WordelUiState()
         data class Loss(val wordelState: WordelState) : WordelUiState()
         data class ShowHelp(val wordelState: WordelState) : WordelUiState()
@@ -52,14 +85,22 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         currentRowPosition = rowPosition
         currentTilePosition = tilePosition
         val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
-        tileState.text = if (letter.isEmpty()) "" else letter.last().toString()
+        tileState.text = if (letter.isEmpty() || letter.toCharArray()
+                .any { !it.isLetter() }
+        ) "" else letter.last().toString()
         //get current row from tile position.
         val row = getRowState(rowPosition = rowPosition)
         //check if all letters are entered, if not just emit the letter changed
         if (!areAllLettersFilled(rowState = row)) {
-            _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState)
+            _wordelUiState.value = WordelUiState.RowInProgress(
+                wordelState = wordelState,
+                guessedLetters = guessedLetters.toList()
+            )
         } else {
-            _wordelUiState.value = WordelUiState.RowComplete(wordelState = wordelState)
+            _wordelUiState.value = WordelUiState.RowComplete(
+                wordelState = wordelState,
+                guessedLetters = guessedLetters.toList()
+            )
         }
     }
 
@@ -80,7 +121,10 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         val correct = validateAnswer(rowState = row)
 
         if (!wordsRepo.containsWord(getWord(rowState = row))) {
-            _wordelUiState.value = WordelUiState.InvalidWordError(wordelState = wordelState)
+            _wordelUiState.value = WordelUiState.InvalidWordError(
+                wordelState = wordelState,
+                guessedLetters = guessedLetters.toList()
+            )
             return
         }
         if (correct) {
@@ -104,13 +148,17 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
                 return
             }
             wordelState.currentActiveRow = newRowPosition
-            _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState)
+            _wordelUiState.value = WordelUiState.RowInProgress(
+                wordelState = wordelState,
+                guessedLetters = guessedLetters.toList()
+            )
         }
     }
 
     //region private
     private fun resetWordel(): WordelState {
         matchedLetters.clear()
+        guessedLetters.clear()
         wordelState = WordelState(
             row1 = RowState(),
             row2 = RowState(),
@@ -199,6 +247,11 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             matchedLetters.remove(letter)
             tileState.textColor = FilledText
             tileState.color = Correct
+            val guess = GuessedLetter(letter = letter.uppercase(Locale.ROOT), color = Correct)
+            if (guessedLetters.contains(guess)) {
+                guessedLetters.remove(guess)
+            }
+            guessedLetters.add(guess)
         } else {
             val match = word.contains(tileState.text, true)
             return if (match) {
@@ -207,11 +260,21 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
                     tileState.color = Incorrect
                     tileState.textColor = FilledText
                 } else {
+                    val guess =
+                        GuessedLetter(letter = letter.uppercase(Locale.ROOT), color = Approximate)
+                    if (!guessedLetters.contains(guess)) {
+                        guessedLetters.add(guess)
+                    }
                     matchedLetters.remove(letter)
                     tileState.color = Approximate
                     tileState.textColor = FilledText
                 }
             } else {
+                val guess =
+                    GuessedLetter(letter = tileState.text.uppercase(Locale.ROOT), color = Incorrect)
+                if (!guessedLetters.contains(guess)) {
+                    guessedLetters.add(guess)
+                }
                 tileState.color = Incorrect
                 tileState.textColor = FilledText
             }

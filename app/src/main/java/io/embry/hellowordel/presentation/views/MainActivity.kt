@@ -4,18 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -57,6 +64,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 @AndroidEntryPoint
+@ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
     private val viewModel: HelloWordelViewModel by viewModels()
 
@@ -83,48 +91,54 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun HelloWordel(wordelUiState: HelloWordelViewModel.WordelUiState) {
-        Help(showHelp = { viewModel.onHelpPressed() })
+        Setup(showHelp = { viewModel.onHelpPressed() })
         when (wordelUiState) {
             is HelloWordelViewModel.WordelUiState.RowInProgress -> {
                 WordelGame(
                     wordelState = wordelUiState.wordelState,
                     showEnter = false,
-                    showError = false
+                    showError = false,
+                    guessedLetters = wordelUiState.guessedLetters
                 )
             }
             is HelloWordelViewModel.WordelUiState.RowComplete -> {
                 WordelGame(
                     wordelState = wordelUiState.wordelState,
                     showEnter = true,
-                    showError = false
+                    showError = false,
+                    guessedLetters = wordelUiState.guessedLetters
                 )
             }
             is HelloWordelViewModel.WordelUiState.InvalidWordError -> {
                 WordelGame(
                     wordelState = wordelUiState.wordelState,
                     showEnter = false,
-                    showError = true
+                    showError = true,
+                    guessedLetters = wordelUiState.guessedLetters
                 )
             }
             is HelloWordelViewModel.WordelUiState.Loss -> {
                 WordelGame(
                     wordelState = wordelUiState.wordelState,
                     showEnter = false,
-                    showError = false
+                    showError = false,
+                    guessedLetters = null
                 )
             }
             is HelloWordelViewModel.WordelUiState.Victory -> {
                 WordelGame(
                     wordelState = wordelUiState.wordelState,
                     showEnter = false,
-                    showError = false
+                    showError = false,
+                    guessedLetters = null
                 )
             }
             is HelloWordelViewModel.WordelUiState.ShowHelp -> {
                 WordelGame(
                     wordelState = wordelUiState.wordelState,
                     showEnter = false,
-                    showError = false
+                    showError = false,
+                    guessedLetters = null
                 )
                 HelpAlert()
             }
@@ -132,7 +146,8 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun WordelGame(wordelState: WordelState, showEnter: Boolean, showError: Boolean) {
+    fun WordelGame(wordelState: WordelState, showEnter: Boolean, showError: Boolean,
+    guessedLetters: List<HelloWordelViewModel.GuessedLetter>?) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -162,6 +177,9 @@ class MainActivity : ComponentActivity() {
                 state = wordelState.row5,
                 enabled = wordelState.currentActiveRow == RowPosition.FIFTH
             )
+
+            GuessedLetters(letters = guessedLetters)
+
             if (showEnter) {
                 Enter()
             }
@@ -272,36 +290,41 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Help(showHelp: () -> Unit) {
+    fun Setup(showHelp: () -> Unit) {
         Spacer(modifier = Modifier.size(96.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = stringResource(id = R.string.btn_help),
+        Column() {
+            Row(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .width(48.dp)
-                    .clickable {
-                        showHelp.invoke()
-                    },
-                style = typography.h1,
-                textAlign = TextAlign.Center,
-                color = if (isSystemInDarkTheme()) Color.White else Color.Black
-            )
-            Text(
-                text = stringResource(id = R.string.btn_help),
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(48.dp)
-                    .clickable { /* TODO */ },
-                style = typography.h1,
-                textAlign = TextAlign.Center
-            )
+                    .fillMaxWidth()
+                    .height(48.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.txt_app_title),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentWidth()
+                        .clickable { /* TODO */ },
+                    style = typography.h1,
+                    textAlign = TextAlign.Center,
+                    color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                )
+            }
+            Row() {
+                Text(
+                    text = stringResource(id = R.string.btn_help),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable {
+                            showHelp.invoke()
+                        },
+                    style = typography.h1,
+                    textAlign = TextAlign.Center,
+                    color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                )
+            }
         }
     }
 
@@ -481,6 +504,41 @@ class MainActivity : ComponentActivity() {
                 style = typography.body2,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+
+    @ExperimentalFoundationApi
+    @Composable
+    fun GuessedLetters(letters: List<HelloWordelViewModel.GuessedLetter>?) {
+        if (letters.isNullOrEmpty()) return
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxWidth(),
+            cells = GridCells.Adaptive(minSize = 52.dp),
+            contentPadding = PaddingValues(24.dp)
+        ) {
+            // items
+            items(letters.size) { index ->
+                GuessedLetter(letter = letters[index])
+            }
+        }
+    }
+
+    @Composable
+    fun GuessedLetter(letter: HelloWordelViewModel.GuessedLetter) {
+        val state =
+            TileState(
+                color = letter.color,
+                text = letter.letter,
+                textColor = FilledText,
+                tilePosition = TilePosition.ZERO
+            )
+        Column() {
+            Row() {
+                Spacer(modifier = Modifier.size(4.dp))
+                Tile(state = state, enabled = false)
+            }
+            Spacer(modifier = Modifier.size(4.dp))
         }
     }
 

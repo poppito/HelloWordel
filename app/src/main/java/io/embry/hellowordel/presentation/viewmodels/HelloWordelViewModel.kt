@@ -1,7 +1,6 @@
 package io.embry.hellowordel.presentation.viewmodels
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.embry.hellowordel.data.RowPosition
@@ -78,7 +77,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
 
         data class Victory(val wordelState: WordelState) : WordelUiState()
         data class Loss(val wordelState: WordelState) : WordelUiState()
-        data class ShowHelp(val wordelState: WordelState) : WordelUiState()
+        data class ShowHelp(val wordelState: WordelState, val guessedLetters: List<GuessedLetter>?) : WordelUiState()
     }
 
     fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
@@ -107,7 +106,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     fun onHelpPressed() {
         if (_wordelUiState.value is WordelUiState.ShowHelp) return
         previousUiState = _wordelUiState.value
-        _wordelUiState.value = WordelUiState.ShowHelp(wordelState = wordelState)
+        _wordelUiState.value = WordelUiState.ShowHelp(wordelState = wordelState, guessedLetters = guessedLetters)
     }
 
     fun onHelpDismissed() {

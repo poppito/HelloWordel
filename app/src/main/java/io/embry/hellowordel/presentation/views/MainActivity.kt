@@ -146,6 +146,7 @@ class MainActivity : ComponentActivity() {
                         showError = false,
                         guessedLetters = null
                     )
+                    Victory()
                 }
                 is HelloWordelViewModel.WordelUiState.ShowHelp -> {
                     WordelGame(
@@ -376,9 +377,10 @@ class MainActivity : ComponentActivity() {
             AlertDialog(
                 onDismissRequest = { viewModel.onHelpDismissed() },
                 buttons = {
-                    OkButton {
-                        viewModel.onHelpDismissed()
-                    }
+                    OkButton(
+                        onClick = { viewModel.onHelpDismissed() },
+                        label = stringResource(id = R.string.btn_ok)
+                    )
                 },
                 title = {
                     Text(
@@ -394,7 +396,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun OkButton(onClick: () -> Unit) {
+    fun OkButton(onClick: () -> Unit, label: String) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -406,10 +408,57 @@ class MainActivity : ComponentActivity() {
                 onClick = { onClick.invoke() },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Teal200)
             ) {
-                ButtonLabel(label = stringResource(id = R.string.btn_ok))
+                ButtonLabel(label = label)
             }
         }
         Spacer(modifier = Modifier.size(48.dp))
+    }
+
+    @Composable
+    fun Victory() {
+        HelloWordelTheme() {
+            AlertDialog(
+                onDismissRequest = {
+                    viewModel.onVictoryDismissed()
+                },
+                buttons = {
+                    OkButton(
+                        onClick = {
+                            viewModel.setup()
+                            viewModel.onVictoryDismissed()
+                        },
+                        label = stringResource(id = R.string.btn_restart)
+                    )
+
+                    OkButton(onClick = {
+
+                    }, label = stringResource(R.string.btn_share))
+                },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.txt_win_dialog_title),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.txt_win_dialog_body1),
+                            style = typography.body1,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            )
+        }
     }
 
     @Composable

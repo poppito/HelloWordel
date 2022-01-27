@@ -1,11 +1,12 @@
 package io.embry.hellowordel.data
 
 import androidx.compose.ui.graphics.Color
+import io.embry.hellowordel.ui.theme.Blank
 import io.embry.hellowordel.ui.theme.BlankText
 import io.embry.hellowordel.ui.theme.Teal200
 
 data class TileState(
-    var color: Color = Teal200,
+    var color: Color = Blank,
     var textColor: Color = BlankText,
     var text: String = "",
     val tilePosition: TilePosition,
@@ -19,7 +20,9 @@ data class RowState(
     val tile2: TileState = TileState(tilePosition = TilePosition.SECOND),
     val tile3: TileState = TileState(tilePosition = TilePosition.THIRD),
     val tile4: TileState = TileState(tilePosition = TilePosition.FOURTH)
-)
+) {
+    fun getTiles(): List<TileState> = listOf(tile0, tile1, tile2, tile3, tile4)
+}
 
 data class WordelState(
     val row0: RowState,
@@ -39,6 +42,8 @@ data class WordelState(
     override fun hashCode(): Int {
         return super.hashCode()
     }
+
+    fun getRows(): List<RowState> = listOf(row0, row1, row2, row3, row4, row5)
 }
 
 enum class RowPosition(val position: Int?) {

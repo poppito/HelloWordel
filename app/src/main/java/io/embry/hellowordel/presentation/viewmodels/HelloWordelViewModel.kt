@@ -2,6 +2,8 @@ package io.embry.hellowordel.presentation.viewmodels
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.embry.hellowordel.data.RowPosition
@@ -11,11 +13,13 @@ import io.embry.hellowordel.data.TileState
 import io.embry.hellowordel.data.WordelState
 import io.embry.hellowordel.domain.WordsRepo
 import io.embry.hellowordel.ui.theme.Approximate
+import io.embry.hellowordel.ui.theme.Blank
 import io.embry.hellowordel.ui.theme.Correct
 import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.Incorrect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.lang.StringBuilder
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.IllegalStateException
@@ -29,6 +33,10 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var currentTilePosition: TilePosition? = null
     private var currentRowPosition: RowPosition? = null
     private lateinit var word: String
+
+    private val _shareState = MutableLiveData<String>()
+    val shareState: LiveData<String>
+        get() = _shareState
 
     private var previousUiState: WordelUiState? = null
 
@@ -172,7 +180,44 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         }
     }
 
+    fun onSharePressed() {
+        val sb = StringBuilder()
+        wordelState.getRows().filter { it.getTiles().all { it.color != Blank } }
+            .forEach { rowState ->
+                sb.append(generateShareRow(rowState = rowState) + "\n")
+            }
+        _shareState.value = sb.toString()
+    }
+
     //region private
+    private fun generateShareRow(rowState: RowState): String {
+        val sb = StringBuilder()
+        sb.append(generateShareTile(tileState = rowState.tile0))
+        sb.append(generateShareTile(tileState = rowState.tile1))
+        sb.append(generateShareTile(tileState = rowState.tile2))
+        sb.append(generateShareTile(tileState = rowState.tile3))
+        sb.append(generateShareTile(tileState = rowState.tile4))
+        return sb.toString()
+    }
+
+
+    private fun generateShareTile(tileState: TileState): String? {
+        return when (tileState.color) {
+            Correct -> {
+                "🟧"
+            }
+            Approximate -> {
+                "🟦"
+            }
+            Incorrect -> {
+                "⬜"
+            }
+            else -> {
+                null
+            }
+        }
+    }
+
     private fun resetWordel(): WordelState {
         matchedLetters.clear()
         guessedLetters.clear()

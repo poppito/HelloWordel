@@ -1,6 +1,7 @@
 package io.embry.hellowordel.presentation.views
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -417,9 +418,13 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Victory() {
         HelloWordelTheme() {
+            viewModel.shareState.observe(this, {
+                Log.v("TAGGART", it)
+            })
+            Log.v("TAG", "")
             AlertDialog(
                 onDismissRequest = {
-                    viewModel.onVictoryDismissed()
+                    //not dismissable
                 },
                 buttons = {
                     OkButton(
@@ -431,7 +436,7 @@ class MainActivity : ComponentActivity() {
                     )
 
                     OkButton(onClick = {
-
+                        viewModel.onSharePressed()
                     }, label = stringResource(R.string.btn_share))
                 },
                 title = {

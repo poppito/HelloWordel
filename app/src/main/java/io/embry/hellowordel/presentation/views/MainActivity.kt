@@ -4,16 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateValue
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -35,17 +27,17 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -119,7 +111,8 @@ class MainActivity : ComponentActivity() {
                         wordelState = wordelUiState.wordelState,
                         showEnter = false,
                         showError = false,
-                        guessedLetters = wordelUiState.guessedLetters
+                        guessedLetters = wordelUiState.guessedLetters,
+                        animateRowPosition = wordelUiState.animationRowPosition
                     )
                 }
                 is HelloWordelViewModel.WordelUiState.RowComplete -> {
@@ -170,7 +163,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun WordelGame(
         wordelState: WordelState, showEnter: Boolean, showError: Boolean,
-        guessedLetters: List<HelloWordelViewModel.GuessedLetter>?
+        guessedLetters: List<HelloWordelViewModel.GuessedLetter>?,
+        animateRowPosition: RowPosition? = null
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -179,27 +173,33 @@ class MainActivity : ComponentActivity() {
         ) {
             WordelRow(
                 state = wordelState.row0,
-                enabled = wordelState.currentActiveRow == RowPosition.ZERO
+                enabled = wordelState.currentActiveRow == RowPosition.ZERO,
+                animate = animateRowPosition == RowPosition.ZERO
             )
             WordelRow(
                 state = wordelState.row1,
-                enabled = wordelState.currentActiveRow == RowPosition.FIRST
+                enabled = wordelState.currentActiveRow == RowPosition.FIRST,
+                animate = animateRowPosition == RowPosition.FIRST
             )
             WordelRow(
                 state = wordelState.row2,
-                enabled = wordelState.currentActiveRow == RowPosition.SECOND
+                enabled = wordelState.currentActiveRow == RowPosition.SECOND,
+                animate = animateRowPosition == RowPosition.SECOND
             )
             WordelRow(
                 state = wordelState.row3,
-                enabled = wordelState.currentActiveRow == RowPosition.THIRD
+                enabled = wordelState.currentActiveRow == RowPosition.THIRD,
+                animate = animateRowPosition == RowPosition.THIRD
             )
             WordelRow(
                 state = wordelState.row4,
-                enabled = wordelState.currentActiveRow == RowPosition.FOURTH
+                enabled = wordelState.currentActiveRow == RowPosition.FOURTH,
+                animate = animateRowPosition == RowPosition.FOURTH
             )
             WordelRow(
                 state = wordelState.row5,
-                enabled = wordelState.currentActiveRow == RowPosition.FIFTH
+                enabled = wordelState.currentActiveRow == RowPosition.FIFTH,
+                animate = animateRowPosition == RowPosition.FIFTH
             )
 
             GuessedLetters(letters = guessedLetters)
@@ -214,7 +214,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun WordelRow(state: RowState, enabled: Boolean) {
+    fun WordelRow(state: RowState, enabled: Boolean, animate: Boolean) {
         Spacer(modifier = Modifier.size(16.dp))
         Row(
             Modifier
@@ -222,20 +222,26 @@ class MainActivity : ComponentActivity() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Tile(state = state.tile0, enabled = enabled)
-            Tile(state = state.tile1, enabled = enabled)
-            Tile(state = state.tile2, enabled = enabled)
-            Tile(state = state.tile3, enabled = enabled)
-            Tile(state = state.tile4, enabled = enabled)
+            Tile(state = state.tile0, enabled = enabled, animate = animate)
+            Tile(state = state.tile1, enabled = enabled, animate = animate)
+            Tile(state = state.tile2, enabled = enabled, animate = animate)
+            Tile(state = state.tile3, enabled = enabled, animate = animate)
+            Tile(state = state.tile4, enabled = enabled, animate = animate)
         }
     }
 
     @Composable
-    fun Tile(state: TileState, enabled: Boolean) {
-        val scale = animateFloatAsState(
-            targetValue = 1f,
-            animationSpec = tween()
-        )
+    fun Tile(state: TileState, enabled: Boolean, animate: Boolean) {
+        val scale = remember { Animatable(0f) }
+        LaunchedEffect(scale) {
+            scale.animateTo(
+                1f,
+                TweenSpec(
+                    durationMillis = 1000,
+                    delay = 200,
+                )
+            )
+        }
         TextField(
             value = state.text,
             onValueChange = {
@@ -251,7 +257,10 @@ class MainActivity : ComponentActivity() {
             readOnly = !enabled,
             modifier = Modifier
                 .size(48.dp)
-                .scale(scaleX = scale.value, scaleY = scale.value),
+                .scale(
+                    scaleX = if (animate) scale.value else 1f,
+                    scaleY = if (animate) scale.value else 1f
+                ),
             colors = TextFieldDefaults.textFieldColors(
                 textColor = state.textColor,
                 backgroundColor = state.color
@@ -452,7 +461,8 @@ class MainActivity : ComponentActivity() {
                         text = "S",
                         tilePosition = TilePosition.FOURTH
                     )
-                ), enabled = false
+                ), enabled = false,
+                animate = false
             )
             Text(
                 text = stringResource(id = R.string.txt_help_dialog_body3),
@@ -491,7 +501,8 @@ class MainActivity : ComponentActivity() {
                         text = "Y",
                         tilePosition = TilePosition.FOURTH
                     )
-                ), enabled = false
+                ), enabled = false,
+                animate = false
             )
             Text(
                 text = stringResource(id = R.string.txt_help_dialog_body4),
@@ -530,7 +541,8 @@ class MainActivity : ComponentActivity() {
                         text = "S",
                         tilePosition = TilePosition.FOURTH
                     )
-                ), enabled = false
+                ), enabled = false,
+                animate = false
             )
             Text(
                 text = stringResource(id = R.string.txt_help_dialog_body5),
@@ -567,9 +579,9 @@ class MainActivity : ComponentActivity() {
                 tilePosition = TilePosition.ZERO
             )
         Column() {
-            Row() {
+            Row {
                 Spacer(modifier = Modifier.size(4.dp))
-                Tile(state = state, enabled = false)
+                Tile(state = state, enabled = false, animate = false)
             }
             Spacer(modifier = Modifier.size(4.dp))
         }

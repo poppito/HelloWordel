@@ -2,10 +2,10 @@
     <string name="app_name">HelloWordel</string>
 
     <string name="btn_enter">ENTER</string>
-    <string name="txt_invalid_word">👎</string>
+    <string name="txt_invalid_word">Not on the word list 👎</string>
     <string name="btn_help">🤔</string>
     <string name="btn_ok">OK</string>
-    <string name="txt_app_title">Hello Wordel!</string>
+    <string name="txt_app_title">Hello Wordel, we meet again.</string>
     <string name="txt_help_dialog_title">@string/txt_app_title</string>
     <string name="txt_help_dialog_body1">Find a hidden 5 letter word with 6 guesses. After each guess, the colour of the tiles will indicate whether a letter was in the correct spot, or if the word contained any letters that were guessed.</string>
     <string name="txt_help_dialog_body2"><b>Example</b></string>

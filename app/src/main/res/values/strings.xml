@@ -12,8 +12,9 @@
     <string name="txt_help_dialog_body3">The letter C is in the correct spot</string>
     <string name="txt_help_dialog_body4">The word contains the letters U and Y but here they are in the wrong spot.</string>
     <string name="txt_help_dialog_body5">The word does not contain any of these letters.</string>
-    <string name="txt_win_dialog_title">Nice one 👍</string>
-    <string name="txt_win_dialog_body1">Good job!</string>
+    <string name="txt_win_dialog_title">Good job!  🎉</string>
+    <string name="txt_win_dialog_body">Would you like to try a different word, share your result and challenge a friend to this Wordel?</string>
     <string name="btn_share">Share</string>
     <string name="btn_restart">Play Again</string>
+    <string name="txt_app_url">HelloWordel, seed %1$d, TODO</string>
 </resources>

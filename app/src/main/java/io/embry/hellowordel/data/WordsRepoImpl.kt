@@ -27,6 +27,11 @@ class WordsRepoImpl @Inject constructor(private val context: Context) : WordsRep
         }
     }
 
+    override fun getSeed(seed: Int): Pair<Int, String> {
+        val word = words[seed] ?: throw IllegalStateException("Word cannot be null!")
+        return Pair(seed, word)
+    }
+
     //elegance is but a myth
     override fun getNextWord(): Pair<Int, String> {
         val random = Random.nextInt(from = 0, until = words.size - 1)

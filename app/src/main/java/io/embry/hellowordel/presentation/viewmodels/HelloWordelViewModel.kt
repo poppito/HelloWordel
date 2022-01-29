@@ -33,9 +33,10 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var currentTilePosition: TilePosition? = null
     private var currentRowPosition: RowPosition? = null
     private lateinit var word: String
+    private var seed: Int = 0
 
-    private val _shareState = MutableLiveData<String>()
-    val shareState: LiveData<String>
+    private val _shareState = MutableLiveData<Pair<String, Int>>()
+    val shareState: LiveData<Pair<String, Int>>
         get() = _shareState
 
     private var previousUiState: WordelUiState? = null
@@ -50,9 +51,17 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     val wordel: StateFlow<WordelUiState>
         get() = _wordelUiState
 
-    fun setup() {
-        resetWordel()
-        word = wordsRepo.getNextWord().second
+    fun setup(seed: Int? = null) {
+        if (seed == null) {
+            resetWordel()
+            val wordel = wordsRepo.getNextWord()
+            this.word = wordel.second
+            this.seed = wordel.first
+        } else {
+            val wordel = wordsRepo.getSeed(seed = seed)
+            this.word = wordel.second
+            this.seed = seed
+        }
     }
 
     data class GuessedLetter(val letter: String, val color: Color) {
@@ -186,7 +195,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             .forEach { rowState ->
                 sb.append(generateShareRow(rowState = rowState) + "\n")
             }
-        _shareState.value = sb.toString()
+        _shareState.value = Pair(sb.toString(), seed)
     }
 
     //region private

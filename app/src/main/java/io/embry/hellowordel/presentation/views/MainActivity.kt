@@ -1,5 +1,6 @@
 package io.embry.hellowordel.presentation.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -8,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -22,9 +24,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -43,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -374,7 +379,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun HelpAlert() {
-        HelloWordelTheme() {
+        HelloWordelTheme {
             AlertDialog(
                 onDismissRequest = { viewModel.onHelpDismissed() },
                 buttons = {
@@ -417,27 +422,44 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Victory() {
-        HelloWordelTheme() {
+        HelloWordelTheme {
             viewModel.shareState.observe(this, {
-                Log.v("TAGGART", it)
+                shareIntent(body = it.first, seed = it.second)
             })
-            Log.v("TAG", "")
             AlertDialog(
                 onDismissRequest = {
                     //not dismissable
                 },
                 buttons = {
-                    OkButton(
-                        onClick = {
-                            viewModel.setup()
-                            viewModel.onVictoryDismissed()
-                        },
-                        label = stringResource(id = R.string.btn_restart)
-                    )
-
-                    OkButton(onClick = {
-                        viewModel.onSharePressed()
-                    }, label = stringResource(R.string.btn_share))
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(32.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_restart),
+                            contentDescription = stringResource(id = R.string.btn_restart),
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clickable {
+                                    viewModel.setup()
+                                    viewModel.onVictoryDismissed()
+                                }
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_share),
+                            contentDescription = stringResource(id = R.string.btn_share),
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clickable {
+                                    viewModel.onSharePressed()
+                                }
+                        )
+                    }
                 },
                 title = {
                     Text(
@@ -448,19 +470,14 @@ class MainActivity : ComponentActivity() {
                     )
                 },
                 text = {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    Text(
+                        text = stringResource(id = R.string.txt_win_dialog_body),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.txt_win_dialog_body1),
-                            style = typography.body1,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    )
                 }
             )
         }
@@ -632,13 +649,24 @@ class MainActivity : ComponentActivity() {
                 textColor = FilledText,
                 tilePosition = TilePosition.ZERO
             )
-        Column() {
+        Column {
             Row {
                 Spacer(modifier = Modifier.size(4.dp))
                 Tile(state = state, enabled = false, animate = false)
             }
             Spacer(modifier = Modifier.size(4.dp))
         }
+    }
+
+    private fun shareIntent(body: String, seed: Int) {
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.action = Intent.ACTION_SEND
+        val appUrl = getString(R.string.txt_app_url, seed)
+        val send = String.format("%s\n%s", appUrl, body)
+        shareIntent.putExtra(Intent.EXTRA_TEXT, send)
+        shareIntent.type = "text/plain"
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(shareIntent)
     }
 
     @Preview(showBackground = true)

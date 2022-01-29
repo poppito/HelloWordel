@@ -146,6 +146,7 @@ class MainActivity : ComponentActivity() {
                         showError = false,
                         guessedLetters = null
                     )
+                    Loss()
                 }
                 is HelloWordelViewModel.WordelUiState.Victory -> {
                     WordelGame(
@@ -177,7 +178,6 @@ class MainActivity : ComponentActivity() {
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             WordelRow(
@@ -474,6 +474,56 @@ class MainActivity : ComponentActivity() {
                 text = {
                     Text(
                         text = stringResource(id = R.string.txt_win_dialog_body),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    )
+                }
+            )
+        }
+    }
+
+    @Composable
+    fun Loss() {
+        HelloWordelTheme {
+            AlertDialog(
+                onDismissRequest = {
+                    //not dismissable
+                },
+                buttons = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(32.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_restart),
+                            contentDescription = stringResource(id = R.string.btn_restart),
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clickable {
+                                    viewModel.setup()
+                                    viewModel.onVictoryDismissed()
+                                }
+                        )
+                    }
+                },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.txt_loss_dialog_title),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.txt_loss_dialog_body),
                         style = typography.h1,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

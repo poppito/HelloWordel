@@ -16,5 +16,5 @@
     <string name="txt_win_dialog_body">Would you like to try a different word, share your result and challenge a friend to this Wordel?</string>
     <string name="btn_share">Share</string>
     <string name="btn_restart">Play Again</string>
-    <string name="txt_app_url">HelloWordel, seed %1$d, TODO</string>
+    <string name="txt_app_url">Challenge URL for this seed: hellowordel://seed/%1$d</string>
 </resources>

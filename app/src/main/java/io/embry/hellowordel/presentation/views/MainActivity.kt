@@ -89,7 +89,9 @@ class MainActivity : ComponentActivity() {
                 Surface(color = MaterialTheme.colors.background) {
                     lifecycleScope.launch {
                         repeatOnLifecycle(Lifecycle.State.CREATED) {
-                            viewModel.setup()
+                            viewModel.setup(
+                                seed = intent.data?.pathSegments?.firstOrNull()?.toInt()
+                            )
                             viewModel.wordel.collect {
                                 setContent {
                                     HelloWordel(wordelUiState = it)
@@ -662,7 +664,7 @@ class MainActivity : ComponentActivity() {
         val shareIntent = Intent(Intent.ACTION_SEND)
         shareIntent.action = Intent.ACTION_SEND
         val appUrl = getString(R.string.txt_app_url, seed)
-        val send = String.format("%s\n%s", appUrl, body)
+        val send = String.format("%s\n%s", body, appUrl)
         shareIntent.putExtra(Intent.EXTRA_TEXT, send)
         shareIntent.type = "text/plain"
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

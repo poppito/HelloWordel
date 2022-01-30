@@ -9,10 +9,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -104,10 +101,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun HelloWordel(wordelUiState: HelloWordelViewModel.WordelUiState) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Column {
             Setup(showHelp = { viewModel.onHelpPressed() })
             when (wordelUiState) {
                 is HelloWordelViewModel.WordelUiState.RowInProgress -> {
@@ -174,11 +168,7 @@ class MainActivity : ComponentActivity() {
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .scrollable(
-                    ScrollState(0),
-                    orientation = Orientation.Vertical
-                ),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             WordelRow(

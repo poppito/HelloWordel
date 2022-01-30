@@ -1,6 +1,5 @@
 package io.embry.hellowordel.presentation.viewmodels
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -123,7 +122,6 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
                 guessedLetters = guessedLetters.toList()
             )
         }
-        Log.v("TAGGART", "$word is word")
     }
 
     fun onHelpPressed() {

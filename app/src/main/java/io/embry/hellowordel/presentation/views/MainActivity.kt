@@ -2,7 +2,6 @@ package io.embry.hellowordel.presentation.views
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -28,10 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -107,10 +106,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun HelloWordel(wordelUiState: HelloWordelViewModel.WordelUiState) {
         Column(
-            Modifier.scrollable(
-                ScrollState(0),
-                orientation = Orientation.Vertical
-            )
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             Setup(showHelp = { viewModel.onHelpPressed() })
             when (wordelUiState) {
@@ -177,7 +174,12 @@ class MainActivity : ComponentActivity() {
         animateRowPosition: RowPosition? = null
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .scrollable(
+                    ScrollState(0),
+                    orientation = Orientation.Vertical
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             WordelRow(

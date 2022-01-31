@@ -3,7 +3,11 @@ package io.embry.hellowordel.data
 import androidx.compose.ui.graphics.Color
 import io.embry.hellowordel.ui.theme.Blank
 import io.embry.hellowordel.ui.theme.BlankText
-import io.embry.hellowordel.ui.theme.Teal200
+
+
+val keyboardLine1 = listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P")
+val keyboardLine2 = listOf("A", "S", "D", "F", "G", "H", "I", "J", "K", "L")
+val keyboardLine3 = listOf("Z", "X", "C", "V", "B", "N", "M")
 
 data class TileState(
     var color: Color = Blank,

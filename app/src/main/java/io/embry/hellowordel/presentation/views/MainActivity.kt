@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
@@ -120,7 +123,6 @@ class MainActivity : ComponentActivity() {
                         guessedLetters = wordelUiState.guessedLetters,
                         animateRowPosition = wordelUiState.animationRowPosition
                     )
-                    Keyboard(guessedLetters = wordelUiState.guessedLetters)
                 }
                 is HelloWordelViewModel.WordelUiState.RowComplete -> {
                     WordelGame(
@@ -129,7 +131,6 @@ class MainActivity : ComponentActivity() {
                         showError = false,
                         guessedLetters = wordelUiState.guessedLetters
                     )
-                    Keyboard(guessedLetters = wordelUiState.guessedLetters)
                 }
                 is HelloWordelViewModel.WordelUiState.InvalidWordError -> {
                     WordelGame(
@@ -138,7 +139,6 @@ class MainActivity : ComponentActivity() {
                         showError = true,
                         guessedLetters = wordelUiState.guessedLetters
                     )
-                    Keyboard(guessedLetters = wordelUiState.guessedLetters)
                 }
                 is HelloWordelViewModel.WordelUiState.Loss -> {
                     WordelGame(
@@ -147,7 +147,6 @@ class MainActivity : ComponentActivity() {
                         showError = false,
                         guessedLetters = null
                     )
-                    Keyboard(guessedLetters = null)
                     Loss()
                 }
                 is HelloWordelViewModel.WordelUiState.Victory -> {
@@ -157,7 +156,6 @@ class MainActivity : ComponentActivity() {
                         showError = false,
                         guessedLetters = null
                     )
-                    Keyboard(guessedLetters = null)
                     Victory()
                 }
                 is HelloWordelViewModel.WordelUiState.ShowHelp -> {
@@ -167,7 +165,6 @@ class MainActivity : ComponentActivity() {
                         showError = false,
                         guessedLetters = wordelUiState.guessedLetters
                     )
-                    Keyboard(guessedLetters = null)
                     HelpAlert()
                 }
             }
@@ -213,6 +210,8 @@ class MainActivity : ComponentActivity() {
                 enabled = wordelState.currentActiveRow == RowPosition.FIFTH,
                 animate = animateRowPosition == RowPosition.FIFTH
             )
+
+            Keyboard(guessedLetters = guessedLetters)
 
             if (showEnter) {
                 Enter()
@@ -689,19 +688,20 @@ class MainActivity : ComponentActivity() {
         letters: List<String>,
         guessedLetters: List<HelloWordelViewModel.GuessedLetter>?
     ) {
-        LazyVerticalGrid(
+        LazyRow(
             modifier = Modifier
                 .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
-                .fillMaxWidth(),
-            cells = GridCells.Adaptive(minSize = 28.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.Center
         ) {
             // items
             items(letters.size) { index ->
                 val guessed = guessedLetters?.firstOrNull { it.letter == letters[index] }
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp)
+                        .size(28.dp)
+                        .padding(start = 4.dp, bottom = 4.dp)
                         .background(guessed?.color ?: Blank)
                 ) {
                     Text(
@@ -713,12 +713,11 @@ class MainActivity : ComponentActivity() {
                             fontSize = 16.sp
                         ),
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxSize()
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.size(4.dp))
     }
 
     private fun shareIntent(body: String, seed: Int) {

@@ -25,16 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -80,7 +75,6 @@ import io.embry.hellowordel.ui.theme.headerFont
 import io.embry.hellowordel.ui.theme.typography
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @AndroidEntryPoint
 @ExperimentalFoundationApi
@@ -118,7 +112,7 @@ class MainActivity : ComponentActivity() {
                 is HelloWordelViewModel.WordelUiState.RowInProgress -> {
                     WordelGame(
                         wordelState = wordelUiState.wordelState,
-                        showEnter = false,
+                        showEnter = true,
                         showError = false,
                         guessedLetters = wordelUiState.guessedLetters,
                         animateRowPosition = wordelUiState.animationRowPosition
@@ -135,7 +129,7 @@ class MainActivity : ComponentActivity() {
                 is HelloWordelViewModel.WordelUiState.InvalidWordError -> {
                     WordelGame(
                         wordelState = wordelUiState.wordelState,
-                        showEnter = false,
+                        showEnter = true,
                         showError = true,
                         guessedLetters = wordelUiState.guessedLetters
                     )
@@ -214,7 +208,7 @@ class MainActivity : ComponentActivity() {
             Keyboard(guessedLetters = guessedLetters)
 
             if (showEnter) {
-                Enter()
+                ControlKeys()
             }
             if (showError) {
                 InvalidWordError()
@@ -254,11 +248,7 @@ class MainActivity : ComponentActivity() {
         TextField(
             value = state.text,
             onValueChange = {
-                viewModel.onLetterEntered(
-                    tilePosition = state.tilePosition,
-                    rowPosition = state.rowPosition,
-                    letter = it.uppercase(Locale.ROOT)
-                )
+                //unused now
             },
             singleLine = true,
             maxLines = 1,
@@ -297,7 +287,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Enter() {
+    fun ControlKeys() {
         Spacer(modifier = Modifier.size(24.dp))
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -314,6 +304,19 @@ class MainActivity : ComponentActivity() {
                     viewModel.enterPressed()
                 }) {
                 ButtonLabel(label = stringResource(id = R.string.btn_enter))
+            }
+            Spacer(modifier = Modifier.size(4.dp))
+            Button(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(32.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Teal200
+                ),
+                onClick = {
+                    viewModel.deletePressed()
+                }) {
+                ButtonLabel(label = stringResource(id = R.string.btn_del))
             }
         }
     }
@@ -714,6 +717,7 @@ class MainActivity : ComponentActivity() {
                         ),
                         modifier = Modifier
                             .fillMaxSize()
+                            .clickable { viewModel.onLetterEntered(letter = letters[index]) }
                     )
                 }
             }

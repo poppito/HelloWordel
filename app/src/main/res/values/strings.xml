@@ -2,6 +2,7 @@
     <string name="app_name">HelloWordel</string>
 
     <string name="btn_enter">ENTER</string>
+    <string name="btn_del">DEL</string>
     <string name="txt_invalid_word">Not on the word list 👎</string>
     <string name="btn_help">🤔</string>
     <string name="btn_ok">OK</string>

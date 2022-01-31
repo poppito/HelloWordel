@@ -57,7 +57,7 @@ enum class RowPosition(val position: Int?) {
     SECOND(2),
     THIRD(3),
     FOURTH(4),
-    FIFTH(5)
+    FIFTH(5);
 }
 
 enum class TilePosition(val position: Int) {
@@ -65,5 +65,5 @@ enum class TilePosition(val position: Int) {
     FIRST(1),
     SECOND(2),
     THIRD(3),
-    FOURTH(4)
+    FOURTH(4);
 }

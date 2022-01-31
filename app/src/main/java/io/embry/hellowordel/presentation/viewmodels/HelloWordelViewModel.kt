@@ -29,8 +29,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var matchedLetters = mutableListOf<String>()
     private var guessedLetters = mutableListOf<GuessedLetter>()
     private var wordelState: WordelState = resetWordel()
-    private var currentTilePosition: TilePosition? = null
-    private var currentRowPosition: RowPosition? = null
+    private var currentTilePosition: TilePosition = TilePosition.ZERO
+    private var currentRowPosition: RowPosition = RowPosition.ZERO
     private lateinit var word: String
     private var seed: Int = 0
 
@@ -99,19 +99,21 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             val wordelState: WordelState,
             val guessedLetters: List<GuessedLetter>?
         ) : WordelUiState()
+
+        data class LettersMissingError(val wordelState: WordelState): WordelUiState()
     }
 
-    fun onLetterEntered(tilePosition: TilePosition, rowPosition: RowPosition, letter: String) {
-        currentRowPosition = rowPosition
-        currentTilePosition = tilePosition
-        val tileState = getTileState(rowPosition = rowPosition, tilePosition = tilePosition)
+    fun onLetterEntered(letter: String) {
+        val tileState =
+            getTileState(rowPosition = currentRowPosition, tilePosition = currentTilePosition)
         tileState.text = if (letter.isEmpty() || letter.toCharArray()
                 .any { !it.isLetter() }
         ) "" else letter.last().toString()
         //get current row from tile position.
-        val row = getRowState(rowPosition = rowPosition)
+        val row = getRowState(rowPosition = currentRowPosition)
         //check if all letters are entered, if not just emit the letter changed
         if (!areAllLettersFilled(rowState = row)) {
+            incrementTile()
             _wordelUiState.value = WordelUiState.RowInProgress(
                 wordelState = wordelState,
                 guessedLetters = guessedLetters.toList()
@@ -143,8 +145,20 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         )
     }
 
+    fun deletePressed() {
+        val tileState =
+            getTileState(rowPosition = currentRowPosition, tilePosition = currentTilePosition)
+        tileState.text = ""
+        decrementTile()
+        _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState, guessedLetters = guessedLetters, animationRowPosition = null)
+    }
+
     fun enterPressed() {
-        val row = getRowState(rowPosition = currentRowPosition!!)
+        val row = getRowState(rowPosition = currentRowPosition)
+        if (!areAllLettersFilled(rowState = row)) {
+            _wordelUiState.value = WordelUiState.LettersMissingError(wordelState = wordelState)
+            return
+        }
         //all letters are filled, check if word is correct
         val correct = validateAnswer(rowState = row)
 
@@ -160,8 +174,9 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             gameComplete(rowState = row)
             _wordelUiState.value = WordelUiState.Victory(
                 wordelState = wordelState,
-                animationRowPosition = currentRowPosition!!
+                animationRowPosition = currentRowPosition
             )
+            incrementRow()
         } else {
             //detect if a letter is in the correct spot, or failing which, detect if a letter is contained within word
             word.forEach {
@@ -182,8 +197,9 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             _wordelUiState.value = WordelUiState.RowInProgress(
                 wordelState = wordelState,
                 guessedLetters = guessedLetters.toList(),
-                animationRowPosition = currentRowPosition!!
+                animationRowPosition = currentRowPosition
             )
+            incrementRow()
         }
     }
 
@@ -397,6 +413,34 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
                 RowPosition.ZERO
             }
         }
+    }
+
+    private fun incrementTile() {
+        if (currentRowPosition == RowPosition.FIFTH && currentTilePosition == TilePosition.FOURTH) return
+        if (currentTilePosition == TilePosition.FOURTH) {
+            return
+        }
+        var tile = currentTilePosition.position
+        tile++
+        currentTilePosition = TilePosition.values()[tile]
+    }
+
+    private fun decrementTile() {
+        if (currentRowPosition == RowPosition.ZERO && currentTilePosition == TilePosition.ZERO) return
+        if (currentTilePosition.position <= TilePosition.ZERO.position) {
+            return
+        }
+        var tile = currentTilePosition.position
+        tile--
+        currentTilePosition = TilePosition.values()[tile]
+    }
+
+    private fun incrementRow() {
+        if (currentRowPosition == RowPosition.FIFTH && currentTilePosition == TilePosition.FOURTH) return
+        if (currentRowPosition == RowPosition.FIFTH) return
+        var row = currentRowPosition.position ?: return
+        row++
+        currentRowPosition = RowPosition.values()[row]
     }
 
     private fun getWord(rowState: RowState): String {

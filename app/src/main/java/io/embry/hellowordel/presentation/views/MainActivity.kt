@@ -72,8 +72,6 @@ import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
 import io.embry.hellowordel.ui.theme.Incorrect
 import io.embry.hellowordel.ui.theme.Teal200
-import io.embry.hellowordel.ui.theme.bodyFont
-import io.embry.hellowordel.ui.theme.headerFont
 import io.embry.hellowordel.ui.theme.typography
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -85,19 +83,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            HelloWordelTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    lifecycleScope.launch {
-                        repeatOnLifecycle(Lifecycle.State.CREATED) {
-                            viewModel.setup(
-                                seed = intent.data?.pathSegments?.firstOrNull()?.toInt()
-                            )
-                            viewModel.wordel.collect {
-                                setContent {
-                                    HelloWordel(wordelUiState = it)
-                                }
+        val seed = intent?.data?.pathSegments?.last()?.toInt()
+        viewModel.setup(seed = seed)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                viewModel.wordel.collect {
+                    setContent {
+                        HelloWordelTheme {
+                            // A surface container using the 'background' color from the theme
+                            Surface(color = MaterialTheme.colors.background) {
+                                HelloWordel(wordelUiState = it)
                             }
                         }
                     }
@@ -111,6 +106,9 @@ class MainActivity : ComponentActivity() {
         Column {
             Setup(showHelp = { viewModel.onHelpPressed() })
             when (wordelUiState) {
+                is HelloWordelViewModel.WordelUiState.ChallengeDialog -> {
+                    StartChallengeDialog(seed = wordelUiState.seed)
+                }
                 is HelloWordelViewModel.WordelUiState.RowInProgress -> {
                     WordelGame(
                         wordelState = wordelUiState.wordelState,
@@ -430,6 +428,43 @@ class MainActivity : ComponentActivity() {
             }
         }
         Spacer(modifier = Modifier.size(48.dp))
+    }
+
+    @Composable
+    fun StartChallengeDialog(seed: Int) {
+        HelloWordelTheme {
+            AlertDialog(onDismissRequest = {
+                //not dismissible
+            }, buttons =
+            {
+                OkButton(
+                    onClick = { viewModel.challengeDismissed(ignoreChallenge = false) },
+                    label = stringResource(id = R.string.btn_yes)
+                )
+                OkButton(
+                    onClick = { viewModel.challengeDismissed(ignoreChallenge = true) },
+                    label = stringResource(id = R.string.btn_no)
+                )
+            },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.txt_title_challenge),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(id = R.string.txt_title_challenge_body),
+                        style = typography.h1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    )
+                })
+        }
     }
 
     @Composable

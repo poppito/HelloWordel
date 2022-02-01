@@ -52,15 +52,14 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         get() = _wordelUiState
 
     fun setup(seed: Int? = null) {
+        resetWordel()
         if (seed == null) {
-            resetWordel()
             val wordel = wordsRepo.getNextWord()
             this.word = wordel.second
             this.seed = wordel.first
         } else {
-            val wordel = wordsRepo.getSeed(seed = seed)
-            this.word = wordel.second
             this.seed = seed
+            _wordelUiState.value = WordelUiState.ChallengeDialog(seed = seed)
         }
     }
 
@@ -101,7 +100,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             val guessedLetters: List<GuessedLetter>?
         ) : WordelUiState()
 
-        data class LettersMissingError(val wordelState: WordelState): WordelUiState()
+        data class LettersMissingError(val wordelState: WordelState) : WordelUiState()
+        data class ChallengeDialog(val seed: Int) : WordelUiState()
     }
 
     fun onLetterEntered(letter: String) {
@@ -134,6 +134,24 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             WordelUiState.ShowHelp(wordelState = wordelState, guessedLetters = guessedLetters)
     }
 
+    fun challengeDismissed(ignoreChallenge: Boolean) {
+        if (ignoreChallenge) {
+            resetWordel()
+            val wordel = wordsRepo.getNextWord()
+            this.word = wordel.second
+            this.seed = wordel.first
+        } else {
+            val wordel = wordsRepo.getSeed(seed = seed)
+            this.word = wordel.second
+            this.seed = wordel.first
+        }
+        _wordelUiState.value = WordelUiState.RowInProgress(
+            wordelState = wordelState,
+            guessedLetters = null,
+            animationRowPosition = null
+        )
+    }
+
     fun onHelpDismissed() {
         _wordelUiState.value =
             previousUiState ?: throw IllegalStateException("Previous UI State cannot be null!")
@@ -154,7 +172,11 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         val tileState =
             getTileState(rowPosition = currentRowPosition, tilePosition = currentTilePosition)
         tileState.text = ""
-        _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState, guessedLetters = guessedLetters, animationRowPosition = null)
+        _wordelUiState.value = WordelUiState.RowInProgress(
+            wordelState = wordelState,
+            guessedLetters = guessedLetters,
+            animationRowPosition = null
+        )
         if (areAllLettersFilled(currentRow)) {
             decrementTile()
         }
@@ -264,6 +286,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         resetRow(rowState = wordelState.row4, rowPosition = RowPosition.FOURTH)
         resetRow(rowState = wordelState.row5, rowPosition = RowPosition.FIFTH)
         resetRow(rowState = wordelState.row0, rowPosition = RowPosition.ZERO)
+        currentRowPosition = RowPosition.ZERO
+        currentTilePosition = TilePosition.ZERO
         return wordelState
     }
 

@@ -16,9 +16,13 @@
     <string name="txt_help_dialog_body5">The word does not contain any of these letters.</string>
     <string name="txt_win_dialog_title">Good job!  🎉</string>
     <string name="txt_loss_dialog_title">Oh no! 😅</string>
-    <string name="txt_win_dialog_body">Would you like to try a different word, share your result and challenge a friend to this Wordel?</string>
+    <string name="txt_win_dialog_body">Would you like to try a different Wordel or share your result and challenge a friend to this Wordel?</string>
     <string name="txt_loss_dialog_body">At least you gave it a crack. How about trying a different word? 💪</string>
     <string name="btn_share">Share</string>
     <string name="btn_restart">Play Again</string>
     <string name="txt_app_url">Challenge URL for this seed: hellowordel://seed/%1$d</string>
+    <string name="txt_title_challenge">You\'ve opened a challenge link</string>
+    <string name="txt_title_challenge_body">Would you like to proceed with this Wordel challenge?</string>
+    <string name="btn_yes">Yes</string>
+    <string name="btn_no">No</string>
 </resources>

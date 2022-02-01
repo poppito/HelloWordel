@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.embry.hellowordel.data.RowPosition
 import io.embry.hellowordel.data.RowState
@@ -19,6 +20,7 @@ import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.Incorrect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.lang.StringBuilder
 import java.util.Locale
 import javax.inject.Inject
@@ -52,14 +54,24 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         get() = _wordelUiState
 
     fun setup(seed: Int? = null) {
-        resetWordel()
-        if (seed == null) {
-            val wordel = wordsRepo.getNextWord()
-            this.word = wordel.second
-            this.seed = wordel.first
-        } else {
-            this.seed = seed
-            _wordelUiState.value = WordelUiState.ChallengeDialog(seed = seed)
+        viewModelScope.launch {
+            _wordelUiState.value = WordelUiState.Loading
+            wordsRepo.initialiseRepo {
+                resetWordel()
+                if (seed == null) {
+                    val wordel = wordsRepo.getNextWord()
+                    this@HelloWordelViewModel.word = wordel.second
+                    this@HelloWordelViewModel.seed = wordel.first
+                    _wordelUiState.value = WordelUiState.RowInProgress(
+                        wordelState = wordelState,
+                        guessedLetters = null,
+                        animationRowPosition = null
+                    )
+                } else {
+                    this@HelloWordelViewModel.seed = seed
+                    _wordelUiState.value = WordelUiState.ChallengeDialog(seed = seed)
+                }
+            }
         }
     }
 
@@ -102,6 +114,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
 
         data class LettersMissingError(val wordelState: WordelState) : WordelUiState()
         data class ChallengeDialog(val seed: Int) : WordelUiState()
+        object Loading : WordelUiState()
     }
 
     fun onLetterEntered(letter: String) {

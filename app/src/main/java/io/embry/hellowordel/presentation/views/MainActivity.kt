@@ -25,11 +25,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -106,6 +108,15 @@ class MainActivity : ComponentActivity() {
         Column {
             Setup(showHelp = { viewModel.onHelpPressed() })
             when (wordelUiState) {
+                is HelloWordelViewModel.WordelUiState.Loading -> {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
                 is HelloWordelViewModel.WordelUiState.ChallengeDialog -> {
                     StartChallengeDialog(seed = wordelUiState.seed)
                 }

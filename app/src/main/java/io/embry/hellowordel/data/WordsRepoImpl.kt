@@ -11,7 +11,8 @@ class WordsRepoImpl @Inject constructor(private val context: Context) : WordsRep
     //I am a bit torn. A data class with field names is a lot more descriptive than a map with a bunch of map entries
     private var words = mutableMapOf<Int, String>()
 
-    init {
+
+    override fun initialiseRepo(initialised: () -> Unit) {
         try {
             val stream = context.assets.open("words.csv")
             val reader = BufferedReader(InputStreamReader(stream))
@@ -25,6 +26,7 @@ class WordsRepoImpl @Inject constructor(private val context: Context) : WordsRep
         } catch (e: Exception) {
 
         }
+        initialised.invoke()
     }
 
     override fun getSeed(seed: Int): Pair<Int, String> {

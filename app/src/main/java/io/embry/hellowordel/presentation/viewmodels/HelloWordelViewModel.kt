@@ -112,7 +112,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             val guessedLetters: List<GuessedLetter>?
         ) : WordelUiState()
 
-        data class LettersMissingError(val wordelState: WordelState) : WordelUiState()
+        data class LettersMissingError(val wordelState: WordelState, val guessedLetters: List<GuessedLetter>?) : WordelUiState()
         data class ChallengeDialog(val seed: Int) : WordelUiState()
         object Loading : WordelUiState()
     }
@@ -198,7 +198,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     fun enterPressed() {
         val row = getRowState(rowPosition = currentRowPosition)
         if (!areAllLettersFilled(rowState = row)) {
-            _wordelUiState.value = WordelUiState.LettersMissingError(wordelState = wordelState)
+            _wordelUiState.value = WordelUiState.LettersMissingError(wordelState = wordelState, guessedLetters = guessedLetters)
             return
         }
         //all letters are filled, check if word is correct

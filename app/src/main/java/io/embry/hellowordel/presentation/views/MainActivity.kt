@@ -179,7 +179,7 @@ class MainActivity : ComponentActivity() {
                         showEnter = true,
                         showError = true,
                         error = stringResource(id = R.string.txt_missing_letters),
-                        guessedLetters = null
+                        guessedLetters = wordelUiState.guessedLetters
                     )
                 }
             }

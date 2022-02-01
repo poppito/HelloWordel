@@ -459,8 +459,6 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         var tile = currentTilePosition.position
         tile++
         currentTilePosition = TilePosition.values()[tile]
-        Log.v("TAGGART", "current row is ${currentRowPosition.position}")
-        Log.v("TAGGART", "current tile is ${currentTilePosition.position}")
     }
 
     private fun decrementTile() {

@@ -14,3 +14,4 @@
 ## Deeplinking for challenging other players.
 
 ![Challenge Screen](/screenshots/help.png "Challenge Screen")
+

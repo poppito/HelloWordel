@@ -124,7 +124,6 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
                 wordelState = wordelState,
                 guessedLetters = guessedLetters.toList()
             )
-            incrementTile()
         }
     }
 
@@ -148,11 +147,17 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     }
 
     fun deletePressed() {
+        val currentRow = getRowState(rowPosition = currentRowPosition)
+        if (!areAllLettersFilled(currentRow)) {
+            decrementTile()
+        }
         val tileState =
             getTileState(rowPosition = currentRowPosition, tilePosition = currentTilePosition)
         tileState.text = ""
         _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState, guessedLetters = guessedLetters, animationRowPosition = null)
-        decrementTile()
+        if (areAllLettersFilled(currentRow)) {
+            decrementTile()
+        }
     }
 
     fun enterPressed() {
@@ -189,13 +194,12 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             detectCorrectLetters(row.tile2)
             detectCorrectLetters(row.tile3)
             detectCorrectLetters(row.tile4)
-            val newRowPosition = getNextRowPosition(rowPosition = wordelState.currentActiveRow)
+            val newRowPosition = getNextRowPosition(rowPosition = currentRowPosition)
             matchedLetters.clear()
             if (newRowPosition == null) {
                 _wordelUiState.value = WordelUiState.Loss(wordelState = wordelState)
                 return
             }
-            wordelState.currentActiveRow = newRowPosition
             _wordelUiState.value = WordelUiState.RowInProgress(
                 wordelState = wordelState,
                 guessedLetters = guessedLetters.toList(),
@@ -252,8 +256,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             row3 = RowState(),
             row4 = RowState(),
             row5 = RowState(),
-            row0 = RowState(),
-            currentActiveRow = RowPosition.ZERO
+            row0 = RowState()
         )
         resetRow(rowState = wordelState.row1, rowPosition = RowPosition.FIRST)
         resetRow(rowState = wordelState.row2, rowPosition = RowPosition.SECOND)
@@ -373,6 +376,9 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             TilePosition.ZERO -> {
                 rowState.tile0
             }
+            TilePosition.FIRST -> {
+                rowState.tile1
+            }
             TilePosition.SECOND -> {
                 rowState.tile2
             }
@@ -381,9 +387,6 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             }
             TilePosition.FOURTH -> {
                 rowState.tile4
-            }
-            TilePosition.FIRST -> {
-                rowState.tile1
             }
         }
     }

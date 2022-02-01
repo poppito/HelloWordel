@@ -13,7 +13,7 @@ data class TileState(
     var color: Color = Blank,
     var textColor: Color = BlankText,
     var text: String = "",
-    val tilePosition: TilePosition,
+    val tilePosition: TilePosition = TilePosition.ZERO,
     var rowPosition: RowPosition = RowPosition.ZERO,
     var readOnly: Boolean = false
 )

@@ -775,7 +775,7 @@ class MainActivity : ComponentActivity() {
         val appUrl = getString(R.string.txt_app_url, seed)
         val send = String.format("%s\n%s", body, appUrl)
         shareIntent.putExtra(Intent.EXTRA_TEXT, send)
-        shareIntent.type = "text/plain"
+        shareIntent.type = "text/html"
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(shareIntent)
     }

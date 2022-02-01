@@ -14,7 +14,7 @@ data class TileState(
     var textColor: Color = BlankText,
     var text: String = "",
     val tilePosition: TilePosition,
-    var rowPosition: RowPosition = RowPosition.NONE,
+    var rowPosition: RowPosition = RowPosition.ZERO,
     var readOnly: Boolean = false
 )
 
@@ -34,8 +34,7 @@ data class WordelState(
     val row2: RowState,
     val row3: RowState,
     val row4: RowState,
-    val row5: RowState,
-    var currentActiveRow: RowPosition = RowPosition.NONE
+    val row5: RowState
 ) {
     //surely there is a more elegant way of emitting this
     //perhaps a comparison of letters on each tile?
@@ -50,8 +49,7 @@ data class WordelState(
     fun getRows(): List<RowState> = listOf(row0, row1, row2, row3, row4, row5)
 }
 
-enum class RowPosition(val position: Int?) {
-    NONE(null),
+enum class RowPosition(val position: Int) {
     ZERO(0),
     FIRST(1),
     SECOND(2),

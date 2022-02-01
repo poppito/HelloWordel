@@ -1,5 +1,6 @@
 package io.embry.hellowordel.presentation.viewmodels
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -113,16 +114,17 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         val row = getRowState(rowPosition = currentRowPosition)
         //check if all letters are entered, if not just emit the letter changed
         if (!areAllLettersFilled(rowState = row)) {
-            incrementTile()
             _wordelUiState.value = WordelUiState.RowInProgress(
                 wordelState = wordelState,
                 guessedLetters = guessedLetters.toList()
             )
+            incrementTile()
         } else {
             _wordelUiState.value = WordelUiState.RowComplete(
                 wordelState = wordelState,
                 guessedLetters = guessedLetters.toList()
             )
+            incrementTile()
         }
     }
 
@@ -149,8 +151,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         val tileState =
             getTileState(rowPosition = currentRowPosition, tilePosition = currentTilePosition)
         tileState.text = ""
-        decrementTile()
         _wordelUiState.value = WordelUiState.RowInProgress(wordelState = wordelState, guessedLetters = guessedLetters, animationRowPosition = null)
+        decrementTile()
     }
 
     fun enterPressed() {
@@ -290,9 +292,6 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             RowPosition.ZERO -> {
                 wordelState.row0
             }
-            RowPosition.NONE -> {
-                throw IllegalStateException("Row position must not be null")
-            }
         }
     }
 
@@ -409,9 +408,6 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             RowPosition.ZERO -> {
                 RowPosition.FIRST
             }
-            RowPosition.NONE -> {
-                RowPosition.ZERO
-            }
         }
     }
 
@@ -423,6 +419,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         var tile = currentTilePosition.position
         tile++
         currentTilePosition = TilePosition.values()[tile]
+        Log.v("TAGGART", "current row is ${currentRowPosition.position}")
+        Log.v("TAGGART", "current tile is ${currentTilePosition.position}")
     }
 
     private fun decrementTile() {
@@ -433,6 +431,8 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         var tile = currentTilePosition.position
         tile--
         currentTilePosition = TilePosition.values()[tile]
+        Log.v("TAGGART", "current row is ${currentRowPosition.position}")
+        Log.v("TAGGART", "current tile is ${currentTilePosition.position}")
     }
 
     private fun incrementRow() {
@@ -441,6 +441,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         var row = currentRowPosition.position ?: return
         row++
         currentRowPosition = RowPosition.values()[row]
+        currentTilePosition = TilePosition.ZERO
     }
 
     private fun getWord(rowState: RowState): String {

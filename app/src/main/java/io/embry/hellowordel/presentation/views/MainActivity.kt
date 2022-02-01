@@ -176,32 +176,26 @@ class MainActivity : ComponentActivity() {
         ) {
             WordelRow(
                 state = wordelState.row0,
-                enabled = wordelState.currentActiveRow == RowPosition.ZERO,
                 animate = animateRowPosition == RowPosition.ZERO
             )
             WordelRow(
                 state = wordelState.row1,
-                enabled = wordelState.currentActiveRow == RowPosition.FIRST,
                 animate = animateRowPosition == RowPosition.FIRST
             )
             WordelRow(
                 state = wordelState.row2,
-                enabled = wordelState.currentActiveRow == RowPosition.SECOND,
                 animate = animateRowPosition == RowPosition.SECOND
             )
             WordelRow(
                 state = wordelState.row3,
-                enabled = wordelState.currentActiveRow == RowPosition.THIRD,
                 animate = animateRowPosition == RowPosition.THIRD
             )
             WordelRow(
                 state = wordelState.row4,
-                enabled = wordelState.currentActiveRow == RowPosition.FOURTH,
                 animate = animateRowPosition == RowPosition.FOURTH
             )
             WordelRow(
                 state = wordelState.row5,
-                enabled = wordelState.currentActiveRow == RowPosition.FIFTH,
                 animate = animateRowPosition == RowPosition.FIFTH
             )
 
@@ -217,7 +211,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun WordelRow(state: RowState, enabled: Boolean, animate: Boolean) {
+    fun WordelRow(state: RowState, animate: Boolean) {
         Spacer(modifier = Modifier.size(16.dp))
         Row(
             Modifier
@@ -225,16 +219,16 @@ class MainActivity : ComponentActivity() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Tile(state = state.tile0, enabled = enabled, animate = animate)
-            Tile(state = state.tile1, enabled = enabled, animate = animate)
-            Tile(state = state.tile2, enabled = enabled, animate = animate)
-            Tile(state = state.tile3, enabled = enabled, animate = animate)
-            Tile(state = state.tile4, enabled = enabled, animate = animate)
+            Tile(state = state.tile0, animate = animate)
+            Tile(state = state.tile1, animate = animate)
+            Tile(state = state.tile2, animate = animate)
+            Tile(state = state.tile3, animate = animate)
+            Tile(state = state.tile4, animate = animate)
         }
     }
 
     @Composable
-    fun Tile(state: TileState, enabled: Boolean, animate: Boolean) {
+    fun Tile(state: TileState, animate: Boolean) {
         val scale = remember { Animatable(0f) }
         LaunchedEffect(scale) {
             scale.animateTo(
@@ -253,7 +247,7 @@ class MainActivity : ComponentActivity() {
             singleLine = true,
             maxLines = 1,
             textStyle = TextStyle(color = state.textColor, fontFamily = headerFont),
-            readOnly = !enabled,
+            readOnly = true,
             modifier = Modifier
                 .size(48.dp)
                 .scale(
@@ -587,7 +581,7 @@ class MainActivity : ComponentActivity() {
                         text = "S",
                         tilePosition = TilePosition.FOURTH
                     )
-                ), enabled = false,
+                ),
                 animate = false
             )
             Text(
@@ -627,7 +621,7 @@ class MainActivity : ComponentActivity() {
                         text = "Y",
                         tilePosition = TilePosition.FOURTH
                     )
-                ), enabled = false,
+                ),
                 animate = false
             )
             Text(
@@ -667,7 +661,7 @@ class MainActivity : ComponentActivity() {
                         text = "S",
                         tilePosition = TilePosition.FOURTH
                     )
-                ), enabled = false,
+                ),
                 animate = false
             )
             Text(

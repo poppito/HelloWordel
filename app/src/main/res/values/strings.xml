@@ -4,6 +4,7 @@
     <string name="btn_enter">ENTER</string>
     <string name="btn_del">DEL</string>
     <string name="txt_invalid_word">Not on the word list 👎</string>
+    <string name="txt_missing_letters">Only 5 letter words accepted 👎</string>
     <string name="btn_help">🤔</string>
     <string name="btn_ok">OK</string>
     <string name="txt_app_title">Hello Wordel, we meet again.</string>

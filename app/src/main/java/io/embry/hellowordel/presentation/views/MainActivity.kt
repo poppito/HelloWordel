@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,6 +72,7 @@ import io.embry.hellowordel.ui.theme.FilledText
 import io.embry.hellowordel.ui.theme.HelloWordelTheme
 import io.embry.hellowordel.ui.theme.Incorrect
 import io.embry.hellowordel.ui.theme.Teal200
+import io.embry.hellowordel.ui.theme.bodyFont
 import io.embry.hellowordel.ui.theme.headerFont
 import io.embry.hellowordel.ui.theme.typography
 import kotlinx.coroutines.flow.collect
@@ -131,6 +133,7 @@ class MainActivity : ComponentActivity() {
                         wordelState = wordelUiState.wordelState,
                         showEnter = true,
                         showError = true,
+                        error = stringResource(id = R.string.txt_invalid_word),
                         guessedLetters = wordelUiState.guessedLetters
                     )
                 }
@@ -161,6 +164,15 @@ class MainActivity : ComponentActivity() {
                     )
                     HelpAlert()
                 }
+                is HelloWordelViewModel.WordelUiState.LettersMissingError -> {
+                    WordelGame(
+                        wordelState = wordelUiState.wordelState,
+                        showEnter = true,
+                        showError = true,
+                        error = stringResource(id = R.string.txt_missing_letters),
+                        guessedLetters = null
+                    )
+                }
             }
         }
     }
@@ -169,6 +181,7 @@ class MainActivity : ComponentActivity() {
     fun WordelGame(
         wordelState: WordelState, showEnter: Boolean, showError: Boolean,
         guessedLetters: List<HelloWordelViewModel.GuessedLetter>?,
+        error: String? = null,
         animateRowPosition: RowPosition? = null
     ) {
         Column(
@@ -204,8 +217,8 @@ class MainActivity : ComponentActivity() {
             if (showEnter) {
                 ControlKeys()
             }
-            if (showError) {
-                InvalidWordError()
+            if (showError && error != null) {
+                Error(error = error)
             }
         }
     }
@@ -246,7 +259,7 @@ class MainActivity : ComponentActivity() {
             },
             singleLine = true,
             maxLines = 1,
-            textStyle = TextStyle(color = state.textColor, fontFamily = headerFont),
+            textStyle = TextStyle(color = state.textColor),
             readOnly = true,
             modifier = Modifier
                 .size(48.dp)
@@ -263,14 +276,14 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun InvalidWordError() {
+    fun Error(error: String) {
         Spacer(
             modifier = Modifier
                 .height(48.dp)
                 .fillMaxWidth()
         )
         Text(
-            text = stringResource(id = R.string.txt_invalid_word),
+            text = error,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -690,24 +703,27 @@ class MainActivity : ComponentActivity() {
                 .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // items
             items(letters.size) { index ->
                 val guessed = guessedLetters?.firstOrNull { it.letter == letters[index] }
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(36.dp)
                         .padding(start = 4.dp, bottom = 4.dp)
-                        .background(guessed?.color ?: Blank)
+                        .background(guessed?.color ?: Blank),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = letters[index],
                         textAlign = TextAlign.Center,
                         color = if (guessed != null) FilledText else BlankText,
                         style = TextStyle(
-                            textAlign = TextAlign.Center,
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
+                            textDirection = TextDirection.Ltr,
+                            textAlign = TextAlign.Center
                         ),
                         modifier = Modifier
                             .fillMaxSize()

@@ -766,11 +766,7 @@ class MainActivity : ComponentActivity() {
                         text = letters[index],
                         textAlign = TextAlign.Center,
                         color = if (guessed != null) FilledText else BlankText,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            textDirection = TextDirection.Ltr,
-                            textAlign = TextAlign.Center
-                        ),
+                        style = typography.h1,
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable { viewModel.onLetterEntered(letter = letters[index]) }

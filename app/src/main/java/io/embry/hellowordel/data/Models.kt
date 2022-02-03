@@ -6,7 +6,7 @@ import io.embry.hellowordel.ui.theme.BlankText
 
 
 val keyboardLine1 = listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P")
-val keyboardLine2 = listOf("A", "S", "D", "F", "G", "H", "I", "J", "K", "L")
+val keyboardLine2 = listOf("A", "S", "D", "F", "G", "H", "J", "K", "L")
 val keyboardLine3 = listOf("Z", "X", "C", "V", "B", "N", "M")
 
 data class TileState(

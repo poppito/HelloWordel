@@ -41,7 +41,7 @@ fun HelloWordelTheme(
 
     MaterialTheme(
         colors = colors,
-        typography = Typography(),
+        typography = typography,
         shapes = Shapes,
         content = content
     )

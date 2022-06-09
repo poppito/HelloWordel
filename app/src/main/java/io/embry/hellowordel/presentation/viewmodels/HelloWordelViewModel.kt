@@ -25,7 +25,7 @@ import java.lang.StringBuilder
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.IllegalStateException
-
+import kotlin.random.Random
 
 @HiltViewModel
 class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo) : ViewModel() {
@@ -44,29 +44,18 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var previousUiState: WordelUiState? = null
 
     private val _wordelUiState =
-        MutableStateFlow<WordelUiState>(
-            WordelUiState.RowInProgress(
-                wordelState = wordelState,
-                emptyList()
-            )
-        )
+        MutableStateFlow<WordelUiState>(WordelUiState.LaunchImage)
     val wordel: StateFlow<WordelUiState>
         get() = _wordelUiState
 
     fun setup(seed: Int? = null) {
         viewModelScope.launch {
-            _wordelUiState.value = WordelUiState.Loading
             wordsRepo.initialiseRepo {
                 resetWordel()
                 if (seed == null) {
                     val wordel = wordsRepo.getNextWord()
                     this@HelloWordelViewModel.word = wordel.second
                     this@HelloWordelViewModel.seed = wordel.first
-                    _wordelUiState.value = WordelUiState.RowInProgress(
-                        wordelState = wordelState,
-                        guessedLetters = null,
-                        animationRowPosition = null
-                    )
                 } else {
                     this@HelloWordelViewModel.seed = seed
                     _wordelUiState.value = WordelUiState.ChallengeDialog(seed = seed)
@@ -86,7 +75,26 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
         }
     }
 
+    fun onNextButtonClicked() {
+        val random = Random.nextInt(200)
+        _wordelUiState.value =
+            WordelUiState.LaunchRemoteImage(url = "https://picsum.photos/id/$random/200/300")
+    }
+
+    fun onStartButtonClicked() {
+//        _wordelUiState.value = WordelUiState.RowInProgress(
+//            wordelState = wordelState,
+//            guessedLetters = null,
+//            animationRowPosition = null
+//        )
+        val random = Random.nextInt(200)
+        _wordelUiState.value =
+            WordelUiState.LaunchRemoteImage(url = "https://picsum.photos/id/$random/200/300")
+    }
+
     sealed class WordelUiState {
+        object LaunchImage : WordelUiState()
+        data class LaunchRemoteImage(val url: String) : WordelUiState()
         data class RowInProgress(
             val wordelState: WordelState,
             val guessedLetters: List<GuessedLetter>?,
@@ -112,7 +120,11 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
             val guessedLetters: List<GuessedLetter>?
         ) : WordelUiState()
 
-        data class LettersMissingError(val wordelState: WordelState, val guessedLetters: List<GuessedLetter>?) : WordelUiState()
+        data class LettersMissingError(
+            val wordelState: WordelState,
+            val guessedLetters: List<GuessedLetter>?
+        ) : WordelUiState()
+
         data class ChallengeDialog(val seed: Int) : WordelUiState()
         object Loading : WordelUiState()
     }
@@ -198,7 +210,10 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     fun enterPressed() {
         val row = getRowState(rowPosition = currentRowPosition)
         if (!areAllLettersFilled(rowState = row)) {
-            _wordelUiState.value = WordelUiState.LettersMissingError(wordelState = wordelState, guessedLetters = guessedLetters)
+            _wordelUiState.value = WordelUiState.LettersMissingError(
+                wordelState = wordelState,
+                guessedLetters = guessedLetters
+            )
             return
         }
         //all letters are filled, check if word is correct

@@ -44,7 +44,12 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private var previousUiState: WordelUiState? = null
 
     private val _wordelUiState =
-        MutableStateFlow<WordelUiState>(WordelUiState.LaunchImage)
+        MutableStateFlow<WordelUiState>(
+            WordelUiState.RowInProgress(
+                wordelState = wordelState,
+                emptyList()
+            )
+        )
     val wordel: StateFlow<WordelUiState>
         get() = _wordelUiState
 
@@ -77,24 +82,28 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
 
     fun onNextButtonClicked() {
         val random = Random.nextInt(200)
-        _wordelUiState.value =
-            WordelUiState.LaunchRemoteImage(url = "https://picsum.photos/id/$random/200/300")
+        _wordelUiState.value = WordelUiState.RowInProgress(
+            wordelState = wordelState,
+            guessedLetters = null,
+            animationRowPosition = null
+        )
     }
 
     fun onStartButtonClicked() {
-//        _wordelUiState.value = WordelUiState.RowInProgress(
-//            wordelState = wordelState,
-//            guessedLetters = null,
-//            animationRowPosition = null
-//        )
+        _wordelUiState.value = WordelUiState.RowInProgress(
+            wordelState = wordelState,
+            guessedLetters = null,
+            animationRowPosition = null
+        )
         val random = Random.nextInt(200)
-        _wordelUiState.value =
-            WordelUiState.LaunchRemoteImage(url = "https://picsum.photos/id/$random/200/300")
+        _wordelUiState.value = WordelUiState.RowInProgress(
+            wordelState = wordelState,
+            guessedLetters = null,
+            animationRowPosition = null
+        )
     }
 
     sealed class WordelUiState {
-        object LaunchImage : WordelUiState()
-        data class LaunchRemoteImage(val url: String) : WordelUiState()
         data class RowInProgress(
             val wordelState: WordelState,
             val guessedLetters: List<GuessedLetter>?,
@@ -491,7 +500,7 @@ class HelloWordelViewModel @Inject constructor(private val wordsRepo: WordsRepo)
     private fun incrementRow() {
         if (currentRowPosition == RowPosition.FIFTH && currentTilePosition == TilePosition.FOURTH) return
         if (currentRowPosition == RowPosition.FIFTH) return
-        var row = currentRowPosition.position ?: return
+        var row = currentRowPosition.position
         row++
         currentRowPosition = RowPosition.values()[row]
         currentTilePosition = TilePosition.ZERO

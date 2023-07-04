@@ -14,27 +14,28 @@ import io.embry.hellowordel.ui.theme.HelloWordelTheme
 import io.embry.hellowordel.ui.theme.typography
 
 @Composable
-fun StartChallengeScreen(seed: Int, viewModel: HelloWordelViewModel) {
-    StartChallengeDialog(challengeDismissed = viewModel::challengeDismissed)
+fun StartChallengeScreen(modifier: Modifier, seed: Int, viewModel: HelloWordelViewModel) {
+    StartChallengeDialog(modifier = modifier, challengeDismissed = viewModel::challengeDismissed)
 }
 
 
 @Composable
-private fun StartChallengeDialog(challengeDismissed: (Boolean) -> Unit) {
+private fun StartChallengeDialog(modifier: Modifier, challengeDismissed: (Boolean) -> Unit) {
     HelloWordelTheme {
-        AlertDialog(onDismissRequest = {
-            //not dismissible
-        }, buttons =
-        {
-            OKButton(
-                onClick = { challengeDismissed.invoke(false) },
-                label = stringResource(id = R.string.btn_yes)
-            )
-            OKButton(
-                onClick = { challengeDismissed.invoke(true) },
-                label = stringResource(id = R.string.btn_no)
-            )
-        },
+        AlertDialog(modifier = modifier,
+            onDismissRequest = {
+                //not dismissible
+            }, buttons =
+            {
+                OKButton(
+                    onClick = { challengeDismissed.invoke(false) },
+                    label = stringResource(id = R.string.btn_yes)
+                )
+                OKButton(
+                    onClick = { challengeDismissed.invoke(true) },
+                    label = stringResource(id = R.string.btn_no)
+                )
+            },
             title = {
                 Text(
                     text = stringResource(id = R.string.txt_title_challenge),

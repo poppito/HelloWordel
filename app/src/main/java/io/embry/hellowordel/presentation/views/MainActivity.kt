@@ -77,18 +77,27 @@ class MainActivity : ComponentActivity() {
                 when (wordelUiState) {
                     is HelloWordelViewModel.WordelUiState.Loading -> {
                         Row(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(it),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
                             CircularProgressIndicator()
                         }
                     }
+
                     is HelloWordelViewModel.WordelUiState.ChallengeDialog -> {
-                        StartChallengeScreen(seed = wordelUiState.seed, viewModel = viewModel)
+                        StartChallengeScreen(
+                            modifier = Modifier.padding(it),
+                            seed = wordelUiState.seed,
+                            viewModel = viewModel
+                        )
                     }
+
                     is HelloWordelViewModel.WordelUiState.RowInProgress -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = true,
                             showError = false,
@@ -97,8 +106,10 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel
                         )
                     }
+
                     is HelloWordelViewModel.WordelUiState.RowComplete -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = true,
                             showError = false,
@@ -106,8 +117,10 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel
                         )
                     }
+
                     is HelloWordelViewModel.WordelUiState.InvalidWordError -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = true,
                             showError = true,
@@ -116,8 +129,10 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel
                         )
                     }
+
                     is HelloWordelViewModel.WordelUiState.Loss -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = false,
                             showError = false,
@@ -126,8 +141,10 @@ class MainActivity : ComponentActivity() {
                         )
                         Loss()
                     }
+
                     is HelloWordelViewModel.WordelUiState.Victory -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = false,
                             showError = false,
@@ -136,8 +153,10 @@ class MainActivity : ComponentActivity() {
                         )
                         Victory()
                     }
+
                     is HelloWordelViewModel.WordelUiState.ShowHelp -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = false,
                             showError = false,
@@ -146,8 +165,10 @@ class MainActivity : ComponentActivity() {
                         )
                         HelpScreen(viewModel = viewModel)
                     }
+
                     is HelloWordelViewModel.WordelUiState.LettersMissingError -> {
                         WordelGame(
+                            modifier = Modifier.padding(it),
                             wordelState = wordelUiState.wordelState,
                             showEnter = true,
                             showError = true,

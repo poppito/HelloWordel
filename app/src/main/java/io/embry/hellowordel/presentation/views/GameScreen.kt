@@ -45,6 +45,7 @@ import io.embry.hellowordel.ui.theme.typography
 
 @Composable
 fun WordelGame(
+    modifier: Modifier,
     viewModel: HelloWordelViewModel,
     wordelState: WordelState, showEnter: Boolean, showError: Boolean,
     guessedLetters: List<HelloWordelViewModel.GuessedLetter>?,
@@ -52,6 +53,7 @@ fun WordelGame(
     animateRowPosition: RowPosition? = null
 ) {
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         WordelRow(
